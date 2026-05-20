@@ -17,7 +17,7 @@ export function useChat() {
 
   const sendMessage = useCallback(async (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed || isLoading) return;
+    if (!trimmed || isLoading || trimmed.length < 10) return;
 
     const userMsg: Message = {
       id: `user-${Date.now()}`,

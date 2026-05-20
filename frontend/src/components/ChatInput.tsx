@@ -40,7 +40,9 @@ export function ChatInput({ onSend, isLoading }: Props) {
     }
   };
 
-  const canSend = text.trim().length > 0 && !isLoading;
+  const trimmedLength = text.trim().length;
+  const isTooShort = trimmedLength > 0 && trimmedLength < 10;
+  const canSend = trimmedLength >= 10 && !isLoading;
 
   return (
     <div
@@ -123,6 +125,19 @@ export function ChatInput({ onSend, isLoading }: Props) {
           <SendIcon />
         </button>
       </form>
+
+      {isTooShort && (
+        <p
+          style={{
+            textAlign: 'center',
+            marginTop: 'var(--space-2)',
+            fontSize: 'var(--font-size-xs)',
+            color: 'var(--color-warning, #B45309)',
+          }}
+        >
+          Pergunta muito curta — mínimo 10 caracteres ({trimmedLength}/10)
+        </p>
+      )}
 
       <p
         style={{
