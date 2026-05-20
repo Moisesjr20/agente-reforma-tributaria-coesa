@@ -1,0 +1,30 @@
+# Supabase config — COESA RAG Reforma Tributária
+# Referência: https://supabase.com/docs/guides/cli/config
+
+project_id = "hbfckolzpkdkzwjyvrah"
+
+[api]
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[studio]
+port = 54323
+
+[inbucket]
+port = 54324
+
+[auth]
+site_url = "http://localhost:3000"
+jwt_expiry = 3600
+enable_signup = false
+
+# Edge Function pública — sem autenticação JWT
+[functions.ask-reforma]
+verify_jwt = false

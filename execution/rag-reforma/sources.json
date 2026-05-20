@@ -1,0 +1,44 @@
+[
+  {
+    "slug": "nt-bens-imoveis-lc214",
+    "title": "NT Financeira — Bens Imóveis à Luz da LC 214/2025",
+    "source_type": "nota-tecnica",
+    "format": "pdf",
+    "path": "D:\\Clientes de BI\\projeto coesa\\base de conhecimento\\202601_NT_FIN_Bens_imoveis_Luz_da_Lei_Complementar_214_2025.pdf"
+  },
+  {
+    "slug": "lcp-214",
+    "title": "Lei Complementar 214/2025",
+    "source_type": "lei",
+    "format": "html",
+    "path": "D:\\Clientes de BI\\projeto coesa\\base de conhecimento\\Lcp 214.html"
+  },
+  {
+    "slug": "manual-split-payment",
+    "title": "Manual de Split Payment",
+    "source_type": "manual",
+    "format": "pdf",
+    "path": "D:\\Clientes de BI\\projeto coesa\\base de conhecimento\\manual_split_payment.docx.pdf"
+  },
+  {
+    "slug": "faq-reforma-v3",
+    "title": "Perguntas e Respostas — Reforma Tributária v3",
+    "source_type": "faq",
+    "format": "pdf",
+    "path": "D:\\Clientes de BI\\projeto coesa\\base de conhecimento\\perguntas-e-respostas-v3.pdf"
+  },
+  {
+    "slug": "modulo-apuracao-assistida",
+    "title": "Primeiros Passos — Módulo de Apuração Assistida",
+    "source_type": "manual",
+    "format": "pdf",
+    "path": "D:\\Clientes de BI\\projeto coesa\\base de conhecimento\\primeiros-passos-modulo-apuracao-assistida-2.pdf"
+  },
+  {
+    "slug": "resolucao-cg-ibs-6-2026",
+    "title": "Resolução CG-IBS Nº 6/2026",
+    "source_type": "resolucao",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\resolucao-cg-ibs-6-2026.txt"
+  }
+]
