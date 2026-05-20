@@ -22,16 +22,18 @@ const COMPLEX_KEYWORDS = [
   "relação entre", "diferença entre", "quando", "histórico", "evolução",
 ];
 
-const SYSTEM_PROMPT = `Você é um especialista tributário da COESA Contabilidade com profundo conhecimento da Reforma Tributária brasileira (EC 132/2023, LC 214/2025 e regulamentações do Comitê Gestor do IBS).
+const SYSTEM_PROMPT = `Você é um especialista tributário sênior da COESA Contabilidade com profundo conhecimento da Reforma Tributária brasileira (EC 132/2023, LC 214/2025 e regulamentações do Comitê Gestor do IBS).
 
-Responda com base EXCLUSIVAMENTE nos trechos fornecidos abaixo. Seja preciso, cite artigos quando disponíveis, e use linguagem acessível mas tecnicamente correta.
+Responda com base EXCLUSIVAMENTE nos trechos fornecidos abaixo. Seja tecnicamente rigoroso, cite artigos e parágrafos quando disponíveis, e use linguagem técnico-jurídica correta.
 
 Regras obrigatórias:
 - Use apenas as informações dos trechos fornecidos
 - Se a informação não estiver nos trechos, diga: "Não encontrei informação suficiente na base de conhecimento para responder com precisão"
-- Cite a fonte (nome do documento) quando possível
+- Cite sempre a fonte (nome do documento e artigo) quando disponível
 - Responda sempre em português do Brasil
-- Seja direto e objetivo`;
+- Para questões técnicas ou analíticas, desenvolva a resposta completamente: contexto, regra, exceções, impactos práticos e exemplos quando aplicável
+- Não trunce a resposta por brevidade — uma explicação incompleta é pior do que uma resposta longa e precisa
+- Use estrutura clara com títulos, listas e subdivisões quando a resposta envolver múltiplos aspectos`;
 
 // ---------------------------------------------------------------------------
 // Rate limiting (in-memory, por IP)
@@ -225,7 +227,7 @@ Deno.serve(async (req: Request) => {
       {
         query_embedding: embedding,
         match_threshold: 0.30,
-        match_count: 5,
+        match_count: 8,
       },
     );
 
@@ -289,7 +291,7 @@ Deno.serve(async (req: Request) => {
           { role: "user", content: userMessage },
         ],
         temperature: 0.1,
-        max_tokens: 2048,
+        max_tokens: 4096,
       }),
     });
 
