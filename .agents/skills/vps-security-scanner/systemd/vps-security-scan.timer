@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily VPS Security Scan Timer
+Requires=vps-security-scan.service
+
+[Timer]
+# Run daily at 06:00 America/Sao_Paulo (BRT)
+OnCalendar=*-*-* 06:00:00
+Persistent=true
+Unit=vps-security-scan.service
+
+[Install]
+WantedBy=timers.target

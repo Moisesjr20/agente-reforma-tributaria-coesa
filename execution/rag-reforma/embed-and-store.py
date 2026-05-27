@@ -88,7 +88,7 @@ def process_document(doc: dict) -> dict:
     slug       = doc["slug"]
     chunks_file = CHUNKS_DIR / f"{slug}.jsonl"
 
-    print(f"\n{'─'*50}")
+    print(f"\n{'-'*50}")
     print(f"Documento: {doc['title']}")
 
     if not chunks_file.exists():
@@ -143,7 +143,7 @@ def process_document(doc: dict) -> dict:
             lf.write(json.dumps(entry, ensure_ascii=False) + "\n")
         lf.write(json.dumps({"slug": slug, "status": "ok", "total": inserted}) + "\n")
 
-    print(f"  ✓ {inserted} chunks inseridos no Supabase")
+    print(f"  OK: {inserted} chunks inseridos no Supabase")
     return {"slug": slug, "status": "ok", "inserted": inserted}
 
 
@@ -168,10 +168,10 @@ def main():
     errors  = [r for r in results if r["status"] == "error"]
     total   = sum(r.get("inserted", 0) for r in ok)
 
-    print(f"\n{'═'*50}")
-    print(f"✓ {len(ok)} documentos | {total} chunks no Supabase")
+    print(f"\n{'='*50}")
+    print(f"OK: {len(ok)} documentos | {total} chunks no Supabase")
     for r in errors:
-        print(f"  ✗ {r['slug']}: {r['reason']}")
+        print(f"  ERRO: {r['slug']}: {r['reason']}")
     print(f"\nLog em: {LOG_FILE}\n")
 
     if errors:

@@ -40,5 +40,82 @@
     "source_type": "resolucao",
     "format": "txt",
     "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\resolucao-cg-ibs-6-2026.txt"
+  },
+  {
+    "slug": "anexos-reforma-tributaria-lcp-214",
+    "title": "Anexos da Reforma Tributária — LC 214/2025",
+    "source_type": "lei",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\anexos-reforma-tributaria-lcp-214.txt"
+  },
+  {
+    "slug": "ebook-forum-reforma",
+    "title": "eBook Fórum Reforma Tributária",
+    "source_type": "manual",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\ebook-forum-reforma.txt"
+  },
+  {
+    "slug": "ec-132-23-reforma-tributaria",
+    "title": "EC 132/2023 — Emenda Constitucional da Reforma Tributária",
+    "source_type": "lei",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\ec-132-23-reforma-tributaria.txt"
+  },
+  {
+    "slug": "plp-68-2024-resumo-ibs-cbs-importacoes",
+    "title": "PLP 68/2024 — Resumo IBS e CBS sobre Importações",
+    "source_type": "nota-tecnica",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\plp-68-2024-resumo-ibs-cbs-importacoes.txt"
+  },
+  {
+    "slug": "plp-68-2024-resumo-ibs-cbs-operacoes",
+    "title": "PLP 68/2024 — Resumo IBS e CBS sobre Operações",
+    "source_type": "nota-tecnica",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\plp-68-2024-resumo-ibs-cbs-operacoes.txt"
+  },
+  {
+    "slug": "plp-68-2024-resumo-imposto-seletivo",
+    "title": "PLP 68/2024 — Resumo Imposto Seletivo",
+    "source_type": "nota-tecnica",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\plp-68-2024-resumo-imposto-seletivo.txt"
+  },
+  {
+    "slug": "plp-68-2024-resumo-combustiveis",
+    "title": "PLP 68/2024 — Resumo Regime Específico de Combustíveis",
+    "source_type": "nota-tecnica",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\plp-68-2024-resumo-combustiveis.txt"
+  },
+  {
+    "slug": "plp-68-2024-resumo-bens-imoveis",
+    "title": "PLP 68/2024 — Resumo Regime Específico de Bens Imóveis",
+    "source_type": "nota-tecnica",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\plp-68-2024-resumo-bens-imoveis.txt"
+  },
+  {
+    "slug": "plp-68-2024-resumo-regimes-diferenciados",
+    "title": "PLP 68/2024 — Resumo Regimes Diferenciados",
+    "source_type": "nota-tecnica",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\plp-68-2024-resumo-regimes-diferenciados.txt"
+  },
+  {
+    "slug": "plp-68-2024-resumo-bares-restaurantes",
+    "title": "PLP 68/2024 — Resumo Bares, Restaurantes, Hotelaria e Parques",
+    "source_type": "nota-tecnica",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\plp-68-2024-resumo-bares-restaurantes.txt"
+  },
+  {
+    "slug": "plp-68-2024-resumo-servicos-financeiros",
+    "title": "PLP 68/2024 — Resumo Serviços Financeiros, Planos de Saúde e Apostas",
+    "source_type": "nota-tecnica",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\plp-68-2024-resumo-servicos-financeiros.txt"
   }
 ]

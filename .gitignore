@@ -6,6 +6,9 @@
 # Arquivos temporários de ingestão RAG
 .tmp/
 
+# Supabase temporários
+supabase/.temp/
+
 # Documentos fonte (PDFs grandes — ficam localmente)
 base de conhecimento/
 

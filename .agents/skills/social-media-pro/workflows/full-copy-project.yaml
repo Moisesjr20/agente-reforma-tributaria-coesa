@@ -1,0 +1,946 @@
+# Full Copy Project Workflow
+# Workflow end-to-end para projetos completos de copywriting
+
+name: full-copy-project
+version: 1.0.0
+description: |
+  Workflow completo de projeto de copy: da briefing inicial até entrega final aprovada.
+  
+  Coordena múltiplos specialists em sequência:
+  1. Strategy (Offer + Posicionamento)
+  2. Creation (Copywriting)
+  3. Review (Quality Check)
+  4. Iteration (Melhorias)
+  5. Delivery (Assets finais)
+  
+  Use quando precisar criar campanha completa (não apenas revisar copy existente).
+
+trigger:
+  type: manual
+  required_inputs:
+    - project_type      # webinar-funnel/email-campaign/vsl-funnel/sales-page/launch-sequence
+    - product_info      # Nome, preço, categoria, o que é
+    - target_audience   # Avatar detalhado
+    - goal              # Conversão específica (ex: venda R$ 1.997, optin, book call)
+    - proof_elements    # Testimonials, stats, cases
+
+project_duration: "2-4 horas"  # Tempo estimado
+deliverables_count: "3-8 assets"  # Depende do project_type
+
+# ============================================================================
+# FASE 1: STRATEGY (Offer + Posicionamento)
+# ============================================================================
+
+phase_1_strategy:
+  name: "Strategy: Definir Offer e Posicionamento"
+  duration: "30-45 min"
+  description: |
+    Antes de escrever copy, precisamos definir:
+    - Qual é a oferta (offer stack, garantia, escassez)
+    - Como posicionar (market sophistication, unique mechanism)
+    - Qual framework de copy usar (webinar/vsl/email/sales-letter)
+  
+  steps:
+    - id: step_1_1_analyze_market
+      name: "Eugene Schwartz: Analisar Consciência do Mercado"
+      agent: eugene-schwartz
+      description: |
+        Eugene analisa o nível de consciência do mercado (5 níveis) e define
+        approach de copy adequado.
+      
+      input:
+        product_info: "{{ trigger.product_info }}"
+        target_audience: "{{ trigger.target_audience }}"
+        competitors: "{{ trigger.competitors | optional }}"
+      
+      task: |
+        Analise o nível de consciência do mercado para este produto:
+        
+        PRODUTO:
+        {{ product_info }}
+        
+        PÚBLICO:
+        {{ target_audience }}
+        
+        DETERMINE:
+        
+        1. NÍVEL DE CONSCIÊNCIA (1-5):
+        
+        [ ] Nível 1: Unaware (não sabe que tem problema)
+        [ ] Nível 2: Problem Aware (sabe problema, não sabe soluções)
+        [ ] Nível 3: Solution Aware (sabe soluções, não conhece este produto)
+        [ ] Nível 4: Product Aware (conhece produto, não comprou)
+        [ ] Nível 5: Most Aware (já cliente, fazer upsell/retenção)
+        
+        2. APPROACH DE COPY RECOMENDADO:
+        
+        - Nível 1-2: Educar sobre problema → Introduzir solução
+        - Nível 3: Diferenciar de outras soluções (unique mechanism)
+        - Nível 4: Quebrar objeções específicas (preço, tempo, etc)
+        - Nível 5: Oferta irresistível para clientes existentes
+        
+        3. HEADLINE STRATEGY:
+        
+        [Recomendação baseada no nível de consciência]
+        
+        4. MECANISMO ÚNICO:
+        
+        [O que torna este produto diferente? Nome esse mecanismo.]
+      
+      output:
+        awareness_level: 1-5
+        copy_approach: string
+        headline_strategy: string
+        unique_mechanism: string
+    
+    - id: step_1_2_create_offer_stack
+      name: "Russell Brunson: Criar Offer Stack Irresistível"
+      agent: russell-brunson
+      depends_on: step_1_1_analyze_market
+      description: |
+        Russell cria offer stack com valor percebido 5-10x o preço.
+        
+        Core Offer + Bônus + Garantia + Escassez = Irresistível
+      
+      input:
+        product_info: "{{ trigger.product_info }}"
+        awareness_level: "{{ step_1_1_analyze_market.output.awareness_level }}"
+        goal: "{{ trigger.goal }}"
+      
+      task: |
+        Crie Offer Stack com valor 5-10x o preço para este produto:
+        
+        PRODUTO:
+        Nome: {{ product_name }}
+        Preço: R$ {{ price }}
+        Categoria: {{ category }}
+        O que é: {{ description }}
+        
+        CRIE:
+        
+        1. CORE OFFER (Produto Principal):
+        
+        Nome do Produto: {{ name }}
+        O que inclui (módulos/features):
+        - Módulo 1: [Nome] - [Benefício específico]
+        - Módulo 2: [Nome] - [Benefício específico]
+        - Módulo 3: [Nome] - [Benefício específico]
+        
+        Valor Atribuído: R$ {{ core_value }}
+        
+        2. BÔNUS (3-5 bônus, cada um com valor):
+        
+        🎁 Bônus #1: [Nome]
+        - O que é: [Descrição 1 linha]
+        - Benefício: [Como ajuda alcançar resultado]
+        - Valor: R$ {{ bonus_1_value }}
+        
+        🎁 Bônus #2: [Nome]
+        - O que é: [Descrição]
+        - Benefício: [Como ajuda]
+        - Valor: R$ {{ bonus_2_value }}
+        
+        🎁 Bônus #3: [Nome]
+        - Valor: R$ {{ bonus_3_value }}
+        
+        [Bônus #4, #5 se aplicável]
+        
+        3. VALOR TOTAL:
+        
+        Core Offer: R$ {{ core_value }}
+        + Bônus #1: R$ {{ bonus_1_value }}
+        + Bônus #2: R$ {{ bonus_2_value }}
+        + Bônus #3: R$ {{ bonus_3_value }}
+        ────────────────────
+        VALOR TOTAL: R$ {{ total_value }}
+        
+        Investimento Hoje: R$ {{ actual_price }}
+        Economia: R$ {{ total_value - actual_price }} ({{ discount_percentage }}% OFF)
+        
+        4. GARANTIA:
+        
+        [30 dias? 60 dias? Condicional ou incondicional?]
+        
+        Exemplo:
+        "Garantia 30 dias: Use completamente. Se não [resultado específico],
+        email e devolvo 100% sem perguntas. Fica com os bônus."
+        
+        5. ESCASSEZ/URGÊNCIA (DEVE SER REAL):
+        
+        [ ] Quantidade limitada: "Só {{ X }} vagas/mês (suporte limitado)"
+        [ ] Tempo limitado: "Bônus #2 expira em {{ X }} horas"
+        [ ] Preço temporário: "Preço promocional R$ {{ X }} volta para R$ {{ Y }} em {{ data }}"
+        
+        [Escolha 1-2 que sejam VERDADEIROS]
+        
+        6. SCORE DE IRRESISTIBILIDADE:
+        
+        Valor percebido / Preço real = {{ ratio }}
+        
+        Target: 5-10x
+        - < 3x: Offer fraca, melhorar
+        - 3-5x: Offer boa
+        - 5-10x: Offer irresistível ✅
+        - > 10x: Pode parecer falso, reduzir valor atribuído
+      
+      output:
+        offer_stack:
+          core_offer: object
+          bonuses: array
+          total_value: number
+          actual_price: number
+          discount_percentage: number
+          guarantee: string
+          scarcity: object
+          irresistibility_score: number
+    
+    - id: step_1_3_positioning_strategy
+      name: "Dan Kennedy: Definir USP e Posicionamento"
+      agent: dan-kennedy
+      depends_on: [step_1_1_analyze_market, step_1_2_create_offer_stack]
+      description: |
+        Dan define USP (Unique Selling Proposition) e posicionamento no mercado.
+        
+        USP = Benefício + Prova + Garantia + Razão para Acreditar
+      
+      input:
+        product_info: "{{ trigger.product_info }}"
+        unique_mechanism: "{{ step_1_1_analyze_market.output.unique_mechanism }}"
+        offer_stack: "{{ step_1_2_create_offer_stack.output.offer_stack }}"
+      
+      task: |
+        Defina USP clara para este produto:
+        
+        USP FORMULA (Dan Kennedy):
+        "[Benefício Principal] + [Prova] + [Garantia] + [Razão Acreditar]"
+        
+        Exemplo:
+        "Aumente conversão do seu funil para 30%+ em 60 dias (347 clientes já fizeram)
+        ou devolvo 100% - sistema testado por Russell Brunson em US$ 100M+ vendas"
+        
+        FORNEÇA:
+        
+        1. USP COMPLETA (1 frase, 20-30 palavras):
+        
+        [Sua USP aqui]
+        
+        2. BREAKDOWN:
+        
+        - Benefício Principal: [Específico, mensurável]
+        - Prova: [Número clientes, estatística, case]
+        - Garantia: [Risk reversal]
+        - Razão Acreditar: [Por que funciona, credibilidade]
+        
+        3. POSICIONAMENTO vs CONCORRENTES:
+        
+        Concorrente A diz: "[Posicionamento deles]"
+        Concorrente B diz: "[Posicionamento deles]"
+        
+        NÓS dizemos: "[Nosso posicionamento DIFERENTE]"
+        
+        Por que somos diferentes: [Mecanismo único, approach diferente]
+        
+        4. AVATAR ESPECÍFICO (Quem É Para, Quem NÃO É Para):
+        
+        ✅ PARA:
+        - [Perfil específico 1]
+        - [Perfil específico 2]
+        
+        ❌ NÃO PARA:
+        - [Perfil que não deve comprar]
+        - [Evita bad-fit clients]
+      
+      output:
+        usp: string
+        positioning: object
+        avatar_fit: object
+  
+  phase_1_output:
+    strategy_brief:
+      awareness_level: "{{ step_1_1.output }}"
+      offer_stack: "{{ step_1_2.output }}"
+      usp: "{{ step_1_3.output.usp }}"
+      positioning: "{{ step_1_3.output.positioning }}"
+      unique_mechanism: "{{ step_1_1.output.unique_mechanism }}"
+
+# ============================================================================
+# FASE 2: CREATION (Copywriting)
+# ============================================================================
+
+phase_2_creation:
+  name: "Creation: Escrever Copy Assets"
+  duration: "60-90 min"
+  description: |
+    Com strategy definida, agora escrevemos os copy assets.
+    
+    Assets dependem do project_type:
+    - Webinar Funnel: registration page + email sequence + webinar script
+    - VSL Funnel: VSL script + landing page + email sequence
+    - Email Campaign: 5-7 email sequence
+    - Sales Page: long-form sales letter
+    - Launch Sequence: 4 video scripts + emails + sales page
+  
+  steps:
+    - id: step_2_1_orchestrator_assign_tasks
+      name: "Orchestrator: Distribuir Tasks de Copywriting"
+      agent: orchestrator
+      depends_on: phase_1_strategy
+      description: |
+        Copy Chief analisa project_type e distribui tasks para specialists apropriados.
+      
+      input:
+        project_type: "{{ trigger.project_type }}"
+        strategy_brief: "{{ phase_1_strategy.output }}"
+      
+      assignment_logic:
+        webinar_funnel:
+          tasks:
+            - task: write-landing-page
+              specialist: russell-brunson
+              description: "Registration page (optin page)"
+            - task: write-email-sequence
+              specialist: ben-settle
+              description: "5 emails (registration → webinar → replay)"
+            - task: write-webinar-script
+              specialist: russell-brunson
+              description: "90-min Perfect Webinar script"
+          
+          deliverables:
+            - landing-page.md
+            - email-1-invitation.md
+            - email-2-reminder-24h.md
+            - email-3-reminder-1h.md
+            - email-4-replay.md
+            - email-5-last-chance.md
+            - webinar-script.md
+        
+        vsl_funnel:
+          tasks:
+            - task: write-vsl-script
+              specialist: russell-brunson
+              description: "8-15 min VSL script"
+            - task: write-landing-page
+              specialist: eugene-schwartz
+              description: "Landing page com VSL embed"
+            - task: write-email-sequence
+              specialist: ben-settle
+              description: "5 emails (traffic → VSL)"
+          
+          deliverables:
+            - vsl-script.md
+            - landing-page-vsl.md
+            - email-sequence-5.md
+        
+        email_campaign:
+          tasks:
+            - task: write-email-sequence
+              specialist: ben-settle
+              description: "5-7 email soap opera sequence"
+          
+          deliverables:
+            - email-sequence-complete.md
+        
+        sales_page:
+          tasks:
+            - task: write-sales-letter
+              specialist: joe-sugarman
+              description: "Long-form sales letter"
+          
+          deliverables:
+            - sales-letter.md
+        
+        launch_sequence:
+          tasks:
+            - task: write-4-video-scripts
+              specialist: russell-brunson
+              description: "Product Launch Formula (4 videos)"
+            - task: write-email-sequence
+              specialist: ben-settle
+              description: "12 emails (pre-launch + launch + post-launch)"
+            - task: write-sales-page
+              specialist: dan-kennedy
+              description: "Sales page final"
+          
+          deliverables:
+            - plf-video-1-opportunity.md
+            - plf-video-2-transformation.md
+            - plf-video-3-ownership.md
+            - plf-video-4-offer.md
+            - email-sequence-12.md
+            - sales-page.md
+    
+    - id: step_2_2_parallel_asset_creation
+      name: "Specialists: Criar Copy Assets (Paralelo quando possível)"
+      type: mixed  # Alguns paralelos, alguns sequenciais
+      depends_on: step_2_1_orchestrator_assign_tasks
+      description: |
+        Specialists criam os assets atribuídos.
+        
+        Alguns podem ser paralelos (emails + landing page), outros sequenciais
+        (precisa landing page pronto antes de escrever emails que referenciam ela).
+      
+      execution_order:
+        sequential_when:
+          - landing_page_before_emails  # Emails referenciam URL da landing
+          - videos_before_sales_page     # Sales page referencia videos
+        
+        parallel_when:
+          - multiple_emails_same_sequence  # Email 1, 2, 3 podem ser escritos em paralelo
+          - vsl_script_and_landing_page    # VSL e landing podem ser paralelos
+      
+      # Exemplo: Webinar Funnel
+      webinar_funnel_execution:
+        batch_1_parallel:
+          - asset: registration-page
+            specialist: russell-brunson
+            input:
+              strategy_brief: "{{ phase_1_output }}"
+              task_type: "optin-page-webinar"
+            
+            expected_output:
+              headline: string
+              subheadline: string
+              bullets: array[5-7]
+              cta: string
+              form_fields: array
+              thank_you_message: string
+          
+          - asset: webinar-script
+            specialist: russell-brunson
+            input:
+              strategy_brief: "{{ phase_1_output }}"
+              task_type: "perfect-webinar-script"
+            
+            expected_output:
+              intro_10min: string
+              secret_1_20min: string
+              secret_2_20min: string
+              secret_3_20min: string
+              offer_stack_20min: string
+              qa_flexible: string
+        
+        batch_2_sequential:
+          depends_on: batch_1_parallel
+          
+          - asset: email-sequence-5
+            specialist: ben-settle
+            input:
+              registration_page_url: "{{ batch_1.registration_page.url }}"
+              webinar_date: "{{ trigger.webinar_date }}"
+              webinar_script_themes: "{{ batch_1.webinar_script.secrets }}"
+            
+            expected_output:
+              email_1_invitation: string
+              email_2_reminder_24h: string
+              email_3_reminder_1h: string
+              email_4_replay: string
+              email_5_last_chance: string
+
+# ============================================================================
+# FASE 3: REVIEW (Quality Check Multi-Specialist)
+# ============================================================================
+
+phase_3_review:
+  name: "Review: Quality Check de Todos Assets"
+  duration: "20-30 min"
+  description: |
+    Todos assets criados passam por review multi-specialist usando
+    copy-review-cycle workflow.
+    
+    Target: Score 8.5+/10 em TODOS os assets.
+  
+  steps:
+    - id: step_3_1_batch_review
+      name: "Orchestrator: Coordenar Reviews de Todos Assets"
+      agent: orchestrator
+      depends_on: phase_2_creation
+      description: |
+        Para cada asset criado, dispara copy-review-cycle workflow.
+        
+        Reviews podem ser paralelos (diferentes assets revisados ao mesmo tempo).
+      
+      input:
+        created_assets: "{{ phase_2_creation.output.assets }}"
+      
+      review_process:
+        for_each_asset:
+          - trigger_workflow: copy-review-cycle
+            input:
+              copy_text: "{{ asset.content }}"
+              copy_type: "{{ asset.type }}"
+              target_audience: "{{ trigger.target_audience }}"
+              goal: "{{ trigger.goal }}"
+          
+          - collect_results:
+              asset_name: "{{ asset.name }}"
+              final_score: "{{ copy_review_cycle.output.final_score }}"
+              status: "{{ copy_review_cycle.output.status }}"
+              feedback: "{{ copy_review_cycle.output.consolidated_report }}"
+      
+      aggregation:
+        calculate_project_score:
+          formula: "average(all_asset_scores)"
+        
+        identify_weak_assets:
+          threshold: 8.5
+          filter: "assets with score < 8.5"
+        
+        project_approval:
+          condition: "all_assets >= 8.5"
+    
+    - id: step_3_2_consolidate_project_review
+      name: "Orchestrator: Relatório de Qualidade do Projeto"
+      agent: orchestrator
+      depends_on: step_3_1_batch_review
+      
+      output:
+        project_quality_report:
+          overall_score: "{{ average_all_assets }}/10"
+          
+          assets_approved:
+            - name: "{{ asset_name }}"
+              score: "{{ asset_score }}/10"
+              status: "✅ APPROVED"
+          
+          assets_need_revision:
+            - name: "{{ asset_name }}"
+              score: "{{ asset_score }}/10"
+              status: "⚠️ NEEDS REVISION"
+              feedback: "{{ consolidated_feedback }}"
+          
+          project_status:
+            all_approved: boolean
+            message: string
+
+# ============================================================================
+# DECISION POINT: Projeto Aprovado ou Iterar?
+# ============================================================================
+
+decision_project_approval:
+  name: "Decision: Project Ready or Needs Revision"
+  type: conditional
+  depends_on: phase_3_review
+  
+  conditions:
+    - condition: "{{ all_assets_score >= 8.5 }}"
+      next_phase: phase_4_delivery
+    
+    - condition: "{{ any_asset_score < 8.5 }}"
+      next_phase: phase_3b_iteration
+
+# ============================================================================
+# FASE 3B: ITERATION (Se necessário)
+# ============================================================================
+
+phase_3b_iteration:
+  name: "Iteration: Revisar Assets com Score < 8.5"
+  description: |
+    Assets que não atingiram 8.5 são revisados pelos specialists originais
+    usando feedback do review.
+  
+  steps:
+    - id: step_3b_1_revise_weak_assets
+      name: "Specialists: Revisar Assets Baseado em Feedback"
+      type: parallel
+      
+      input:
+        weak_assets: "{{ phase_3_review.output.assets_need_revision }}"
+      
+      for_each_weak_asset:
+        - specialist: "{{ original_creator }}"
+          task: "Revise {{ asset_name }} baseado neste feedback"
+          input:
+            current_copy: "{{ asset.content }}"
+            review_feedback: "{{ asset.review_feedback }}"
+            target_score: 8.5
+          
+          prompt: |
+            Seu {{ asset_type }} recebeu score {{ current_score }}/10.
+            
+            FEEDBACK DOS REVISORES:
+            {{ review_feedback }}
+            
+            Por favor, revise o copy aplicando as sugestões.
+            
+            Target: 8.5+/10
+      
+      output:
+        revised_assets: array
+    
+    - id: step_3b_2_re_review
+      name: "Re-Review: Verificar Se Atingiu 8.5+"
+      depends_on: step_3b_1_revise_weak_assets
+      
+      process:
+        - trigger_copy_review_cycle_again: true
+        - if_still_below_8_5:
+            max_iterations: 2
+            after_that: "Usuário decide aceitar ou contratar copywriter profissional"
+
+# ============================================================================
+# FASE 4: DELIVERY (Entrega Final)
+# ============================================================================
+
+phase_4_delivery:
+  name: "Delivery: Pacote Final Completo"
+  duration: "10-15 min"
+  description: |
+    Projeto aprovado (todos assets 8.5+/10).
+    
+    Gerar pacote final organizado com:
+    - Todos copy assets (.md files)
+    - Certificado de qualidade
+    - Guia de implementação
+    - Métricas esperadas
+  
+  steps:
+    - id: step_4_1_package_assets
+      name: "Orchestrator: Empacotar Todos Assets"
+      agent: orchestrator
+      
+      output_structure:
+        project_folder: "copy-project-{{ project_name }}-{{ date }}"
+        
+        files:
+          - README.md                    # Visão geral do projeto
+          - implementation-guide.md      # Como implementar
+          - metrics-tracking.md          # Métricas para acompanhar
+          - quality-certificate.md       # Certificado de qualidade
+          
+          - assets/
+              - headlines/
+                  - primary-headline.md
+                  - alternative-headlines.md
+              
+              - landing-pages/
+                  - registration-page.md
+                  - sales-page.md
+              
+              - emails/
+                  - email-1-invitation.md
+                  - email-2-reminder.md
+                  - email-3-last-chance.md
+              
+              - scripts/
+                  - vsl-script.md
+                  - webinar-script.md
+              
+              - reviews/
+                  - asset-1-review-report.md
+                  - asset-2-review-report.md
+                  - project-quality-report.md
+    
+    - id: step_4_2_generate_implementation_guide
+      name: "Orchestrator: Criar Guia de Implementação"
+      agent: orchestrator
+      
+      guide_sections:
+        1_setup:
+          - "Configure landing page (recomendações: Leadpages, Unbounce, custom)"
+case_study - "Setup email automation (recomendações: ActiveCampaign, ConvertKit)"
+          - "Configure tracking (Google Analytics, Facebook Pixel)"
+        
+        2_timeline:
+          - "Dia 1: Deploy landing page + teste formulário"
+          - "Dia 2: Setup email sequence automation"
+          - "Dia 3: Teste completo do funil (end-to-end)"
+          - "Dia 4-5: Soft launch (tráfego pequeno, validar conversões)"
+          - "Dia 6+: Scale tráfego"
+        
+        3_metrics_to_track:
+          landing_page:
+            - "Visitors"
+            - "Optins (target: 30-50%)"
+            - "Bounce rate (target: < 50%)"
+          
+          emails:
+            - "Open rate (target: 40-60% primeiro email, 25-40% demais)"
+            - "Click rate (target: 5-15%)"
+            - "Unsubscribe (target: < 0.5%)"
+          
+          conversion:
+            - "VSL watch rate (target: 40-60%)"
+            - "Sales conversion (target: 10-30% webinar, 3-8% VSL)"
+            - "Revenue per visitor"
+        
+        4_optimization_checklist:
+          week_1:
+            - "Testar 3 headlines diferentes (A/B test)"
+            - "Testar 2 CTAs diferentes"
+          
+          week_2:
+            - "Adicionar proof elements se conversão < esperado"
+            - "Ajustar escassez se muito bounces"
+          
+          month_1:
+            - "Analisar drop-offs (onde pessoas saem?)"
+            - "Entrevistar 5-10 clientes (por que compraram?)"
+            - "Entrevistar 5-10 não-clientes (por que não compraram?)"
+    
+    - id: step_4_3_quality_certificate
+      name: "Orchestrator: Emitir Certificado de Qualidade"
+      agent: orchestrator
+      
+      certificate_template: |
+        # 🏆 CERTIFICADO DE QUALIDADE DE COPY
+        
+        **Projeto:** {{ project_name }}
+        **Data:** {{ date }}
+        **Project Type:** {{ project_type }}
+        
+        ---
+        
+        ## ✅ APROVAÇÃO
+        
+        Este projeto de copy foi revisado por múltiplos especialistas em copywriting
+        e atingiu os padrões de qualidade profissional.
+        
+        **Score Geral do Projeto:** {{ overall_score }}/10 ⭐
+        
+        ---
+        
+        ## 📊 ASSETS APROVADOS
+        
+        | Asset | Score | Revisores |
+        |-------|-------|-----------|
+        | {{ asset_1_name }} | {{ score }}/10 | {{ reviewers }} |
+        | {{ asset_2_name }} | {{ score }}/10 | {{ reviewers }} |
+        | {{ asset_3_name }} | {{ score }}/10 | {{ reviewers }} |
+        
+        ---
+        
+        ## 🎯 STRATEGY BREAKDOWN
+        
+        **Nível de Consciência:** {{ awareness_level }}
+        **USP:** {{ usp }}
+        **Mecanismo Único:** {{ unique_mechanism }}
+        **Offer Stack:** Valor R$ {{ total_value }} → Investimento R$ {{ price }}
+        **Irresistibilidade:** {{ irresistibility_score }}x ✅
+        
+        ---
+        
+        ## 🚀 CONFIANÇA DE CONVERSÃO
+        
+        Baseado nos frameworks e reviews aplicados, esperamos:
+        
+        - **Landing Page Optin:** {{ optin_rate_expected }}%
+        - **Email Open Rate:** {{ email_open_expected }}%
+        - **Sales Conversion:** {{ sales_conversion_expected }}%
+        
+        Estes benchmarks são baseados em campanhas similares usando os mesmos
+        frameworks (Russell Brunson, Gary Halbert, Eugene Schwartz, etc).
+        
+        ---
+        
+        ## 🔥 PRÓXIMOS PASSOS
+        
+        1. Implementar conforme Implementation Guide
+        2. Testar funil completo end-to-end antes de escalar
+        3. Acompanhar métricas semanalmente (primeiros 30 dias)
+        4. A/B test headlines e CTAs (após 100+ visitors)
+        
+        ---
+        
+        **Assinado por:**
+        
+        Copy Chief (Orchestrator)  
+        {{ specialists_que_revisaram }}
+        
+        ---
+        
+        *Este certificado atesta que o copy foi criado e revisado usando frameworks
+        comprovados de copywriting profissional. Performance real pode variar baseado
+        em tráfego, oferta, timing e outros fatores de mercado.*
+  
+  phase_4_output:
+    delivery_package:
+      folder_path: string
+      files_count: number
+      total_word_count: number
+      implementation_guide: file
+      quality_certificate: file
+      expected_roi:
+        optin_rate: "30-50%"
+        email_open: "40-60%"
+        sales_conversion: "10-30% (webinar) | 3-8% (VSL)"
+
+# ============================================================================
+# WORKFLOW COMPLETION
+# ============================================================================
+
+completion:
+  message: |
+    ✅ PROJETO DE COPY COMPLETO!
+    
+    📦 Pacote Final:
+    - {{ assets_count }} copy assets criados
+    - Todos com score 8.5+/10
+    - Implementation guide incluído
+    - Quality certificate emitido
+    
+    📂 Localização:
+    {{ delivery_package_path }}
+    
+    🚀 Próximo Passo:
+    Leia o Implementation Guide e comece setup do funil.
+    
+    Previsão de conversão baseada em benchmarks:
+    - Optin: {{ expected_optin }}%
+    - Sales: {{ expected_sales }}%
+    
+    Boa sorte com o lançamento! 🎉
+  
+  metrics_logged:
+    - project_type
+    - assets_created_count
+    - total_duration
+    - average_asset_score
+    - iterations_needed
+    - specialists_involved
+
+# ============================================================================
+# ERROR HANDLING
+# ============================================================================
+
+error_handling:
+  insufficient_input:
+    message: "product_info incompleto. Precisamos: nome, preço, categoria, descrição, público-alvo"
+    action: "Solicitar mais informações ao usuário"
+  
+  strategy_phase_fails:
+    message: "Não conseguimos definir offer stack com irresistibilidade 5x+"
+    action: "Solicitar USP manual do usuário OU reformular produto"
+  
+  all_assets_below_8_5_after_3_iterations:
+    message: "Após 3 iterações, assets ainda < 8.5. Recomendamos contratar copywriter profissional."
+    action: "Gerar relatório final + recomendações"
+  
+  specialist_unavailable:
+    message: "Specialist {{ name }} não disponível"
+    action: "Substituir por specialist equivalente do mesmo tier"
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+
+config:
+  project_types:
+    - webinar-funnel
+    - vsl-funnel
+    - email-campaign
+    - sales-page
+    - launch-sequence  # Product Launch Formula (Jeff Walker)
+    - challenge-funnel # 5-day challenge
+  
+  estimated_duration:
+    webinar_funnel: "3-4 horas"
+    vsl_funnel: "2-3 horas"
+    email_campaign: "1-2 horas"
+    sales_page: "2-3 horas"
+    launch_sequence: "4-6 horas (mais complexo)"
+  
+  deliverables_count:
+    webinar_funnel: 7  # 1 landing + 5 emails + 1 script
+    vsl_funnel: 7      # 1 VSL + 1 landing + 5 emails
+    email_campaign: 5-7
+    sales_page: 1
+    launch_sequence: 18  # 4 videos + 12 emails + 1 sales page + 1 optin
+
+# ============================================================================
+# EXAMPLE RUN
+# ============================================================================
+
+example_run:
+  input:
+    project_type: "webinar-funnel"
+    product_info:
+      name: "Funil de Alta Conversão"
+      price: 1997
+      category: "curso-online"
+      description: "Curso que ensina freelancers a criar funnels que convertem 30%+"
+    target_audience: "Freelancers consultores que faturam R$ 5-15K/mês e querem escalar"
+    goal: "Vender curso R$ 1.997 via webinar"
+    proof_elements:
+      - "347 alunos já fizeram"
+      - "Média de aumento de 3x no faturamento em 90 dias"
+      - "João Silva: era R$ 8K/mês, hoje R$ 45K/mês"
+  
+  expected_flow:
+    phase_1: "45 min"
+      eugene_schwartz: "Nível 3: Solution Aware"
+      russell_brunson: "Offer stack R$ 9.120 valor → R$ 1.997 (4.6x)"
+      dan_kennedy: "USP: 'Triplique faturamento em 90 dias usando funnels 30%+ conversão (347 já fizeram) ou devolvo 100%'"
+    
+    phase_2: "90 min"
+      russell_brunson: "Registration page + Webinar script (90 min Perfect Webinar)"
+      ben_settle: "5 emails (invitation → reminders → replay → last chance)"
+    
+    phase_3: "30 min"
+      reviews:
+        - registration_page: 8.7/10 ✅
+        - webinar_script: 9.0/10 ✅
+        - email_1: 8.5/10 ✅
+        - email_2: 8.2/10 ⚠️ (precisa iteration)
+        - email_3: 8.8/10 ✅
+        - email_4: 8.6/10 ✅
+        - email_5: 8.9/10 ✅
+      
+      iteration:
+        - email_2 revisado: 8.7/10 ✅ APPROVED
+    
+    phase_4: "15 min"
+      package_created:
+        - 7 copy assets
+        - Implementation guide
+        - Quality certificate
+        - Metrics tracking sheet
+      
+      expected_roi:
+        - Optin: 40%
+        - Show-up: 50%
+        - Sales: 20% (de quem aparece)
+        - Por 100 visitors: 40 optins → 20 aparecem → 4 compram = R$ 7.988
+
+  total_duration: "3h"
+  final_status: "✅ ALL APPROVED"
+
+# ============================================================================
+# QUALITY ASSURANCE
+# ============================================================================
+
+quality_assurance:
+  checklist:
+    strategy_phase:
+      - [ ] Awareness level identificado corretamente
+      - [ ] Offer stack com irresistibilidade 5x+ mínimo
+      - [ ] USP clara e diferenciada
+      - [ ] Mecanismo único definido
+      - [ ] Garantia risk-reversal forte
+      - [ ] Escassez REAL (não fake)
+    
+    creation_phase:
+      - [ ] Todos assets criados conforme project_type
+      - [ ] Copy segue frameworks dos specialists
+      - [ ] Consistência entre assets (mesma voz/tom)
+      - [ ] CTAs claros em todos assets
+      - [ ] Proof elements utilizados apropriadamente
+    
+    review_phase:
+      - [ ] Todos assets revisados por 2-4 specialists
+      - [ ] Score mínimo 8.5/10 em TODOS assets
+      - [ ] Feedback consolidado acionável
+      - [ ] Iterações completadas quando necessário
+    
+    delivery_phase:
+      - [ ] Todos arquivos organizados logicamente
+      - [ ] Implementation guide claro e específico
+      - [ ] Metrics tracking definido
+      - [ ] Quality certificate emitido
+      - [ ] Expected ROI calculado baseado em benchmarks
+
+success_criteria:
+  - all_assets_score >= 8.5
+  - offer_irresistibility >= 5.0
+  - implementation_guide_included == true
+  - quality_certificate_issued == true
+  - project_duration <= estimated_duration * 1.3  # Máximo 30% além do estimado

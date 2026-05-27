@@ -42,7 +42,7 @@ def chunk_document(doc: dict) -> dict:
     parsed = PARSED_DIR / f"{slug}.txt"
     output = CHUNKS_DIR / f"{slug}.jsonl"
 
-    print(f"  → {slug}", end=" ... ", flush=True)
+    print(f"  -> {slug}", end=" ... ", flush=True)
 
     if not parsed.exists():
         print("ERRO: .txt não encontrado — rode parse-documents.py primeiro")
@@ -77,7 +77,7 @@ def chunk_document(doc: dict) -> dict:
     avg_tokens   = sum(token_counts) // len(token_counts) if token_counts else 0
     max_tokens   = max(token_counts) if token_counts else 0
 
-    print(f"OK — {len(chunks)} chunks | avg {avg_tokens}t | max {max_tokens}t" +
+    print(f"OK -- {len(chunks)} chunks | avg {avg_tokens}t | max {max_tokens}t" +
           (f" | {skipped} descartados" if skipped else ""))
 
     return {"slug": slug, "status": "ok", "chunks": len(chunks), "avg_tokens": avg_tokens}
@@ -104,10 +104,10 @@ def main():
     errors = [r for r in results if r["status"] == "error"]
     total  = sum(r.get("chunks", 0) for r in ok)
 
-    print(f"\n{'─'*50}")
-    print(f"✓ {len(ok)} documentos | {total} chunks totais")
+    print(f"\n{'-'*50}")
+    print(f"OK: {len(ok)} documentos | {total} chunks totais")
     for r in errors:
-        print(f"  ✗ {r['slug']}: {r['reason']}")
+        print(f"  ERRO: {r['slug']}: {r['reason']}")
     print(f"\nArquivos salvos em: {CHUNKS_DIR}\n")
 
     if errors:

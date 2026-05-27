@@ -1,0 +1,67 @@
+{
+  "skill_name": "liquidacao-sentenca",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Tenho uma sentença que condenou o réu ao pagamento de R$ 30.000,00 por danos morais, com correção pelo INPC a partir da publicação da sentença e juros de mora de 1% ao mês desde a data do acidente (18/07/2020). A sentença foi publicada em 15/03/2023 e o trânsito em julgado ocorreu em 20/06/2023. Preciso montar o demonstrativo de cálculo para o cumprimento de sentença. Quais são os índices corretos e como estruturo o cálculo?",
+      "expected_output": "Análise estruturada identificando: (1) marco inicial dos juros de mora = 18/07/2020 (data do acidente, Súmula 54/STJ); (2) marco inicial da correção monetária = 15/03/2023 (publicação da sentença, Súmula 362/STJ); (3) índice de correção = INPC conforme fixado; (4) juros = 1% a.m. compostos; (5) advertência sobre mudança a partir set/2024 (Lei 14.905/2024); (6) itens obrigatórios do demonstrativo (art. 524, CPC); (7) prazo de 15 dias para pagamento voluntário e consequências (art. 523, CPC).",
+      "files": [],
+      "assertions": [
+        "A resposta identifica corretamente o marco inicial dos juros de mora como a data do acidente",
+        "A resposta menciona a Súmula 54 do STJ como fundamento para os juros desde o evento danoso",
+        "A resposta identifica a Súmula 362/STJ ou menciona que a correção conta da publicação da sentença",
+        "A resposta lista os requisitos do art. 524 do CPC para o demonstrativo",
+        "A resposta menciona a multa de 10% e honorários de 10% por não pagamento voluntário (art. 523, §1º)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Preciso calcular os atrasados de uma pensão previdenciária devida pelo Estado do Ceará. O débito vai de setembro/1993 a julho/1998. O acórdão transitou em julgado em 20/12/2006. A sentença é omissa quanto aos índices de atualização. Quais parâmetros devo aplicar?",
+      "expected_output": "Aplicação do Tema 905/STJ (REsp 1.495.146/MG): natureza previdenciária — usar índices históricos para o período do débito (ORTN, OTN, BTN, IRSM, etc. conforme o mês) e INPC para fase posterior; juros moratórios de 1% ao mês. Para a atualização até o momento do cálculo: se anterior a dez/2021 usar Tema 905/STJ; de dez/2021 em diante aplicar SELIC (EC 113/2021). Honorários: juros de mora a partir do trânsito em julgado (art. 85, §16, CPC) com natureza administrativa geral.",
+      "files": [],
+      "assertions": [
+        "A resposta menciona o Tema 905 do STJ como parâmetro para sentença omissa contra Fazenda Pública",
+        "A resposta identifica a natureza previdenciária da condenação",
+        "A resposta menciona a EC 113/2021 e a unificação pela SELIC a partir de dezembro/2021",
+        "A resposta diferencia a regra dos honorários sucumbenciais (juros a partir do trânsito em julgado, art. 85, §16, CPC)",
+        "A resposta menciona a EC 136/2025 ou alerta sobre incerteza para o período posterior a outubro/2025"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "O executado apresentou impugnação ao cumprimento de sentença alegando excesso de execução, mas não apresentou demonstrativo com o valor que entende correto. O que acontece com a impugnação? Qual o fundamento legal?",
+      "expected_output": "A impugnação deve ser liminarmente rejeitada nessa parte, conforme art. 525, §§ 4º e 5º, do CPC. O executado que alega excesso de execução tem o ônus de declarar imediatamente o valor correto e apresentar demonstrativo discriminado e atualizado. Se não o fizer: (a) se o excesso for o único fundamento, a impugnação é rejeitada liminarmente; (b) se houver outros fundamentos, a impugnação é processada mas o juiz não examina a alegação de excesso.",
+      "files": [],
+      "assertions": [
+        "A resposta cita o art. 525, §4º do CPC sobre o ônus do executado de apresentar demonstrativo",
+        "A resposta cita o art. 525, §5º do CPC sobre a rejeição liminar",
+        "A resposta distingue os dois casos: (a) única alegação → rejeitada; (b) com outros fundamentos → não examina o excesso",
+        "A resposta é tecnicamente precisa quanto ao procedimento de impugnação"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Qual a diferença entre liquidação por arbitramento e liquidação pelo procedimento comum? Quando usar cada uma?",
+      "expected_output": "Liquidação por arbitramento (art. 509, I, CPC): usada quando determinada pela sentença, convencionada pelas partes ou quando a natureza do objeto assim exige — objetivo é quantificar algo já definido, via perito nomeado, sem apresentar fatos novos. Liquidação pelo procedimento comum (art. 509, II, CPC): usada nos demais casos — apresenta fatos novos para apuração do valor, segue o rito comum do CPC. Ambas têm o mesmo objetivo: apurar o quantum debeatur. Princípio da fungibilidade: o juiz pode adotar a forma mais adequada independentemente do requerimento.",
+      "files": [],
+      "assertions": [
+        "A resposta explica a liquidação por arbitramento com uso de perito e ausência de fatos novos",
+        "A resposta explica a liquidação pelo procedimento comum com apresentação de fatos novos",
+        "A resposta menciona o princípio da fungibilidade das formas",
+        "A resposta cita os arts. 509 I e II do CPC"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Uma sentença condenou empresa ao pagamento de lucros cessantes de R$ 1.019,30/mês desde 18/07/2020 até a data da convalescença, com correção pelo INPC desde o evento danoso e juros de mora de 1% ao mês a partir dos respectivos vencimentos. A convalescença ocorreu em 30/11/2022. Como estruturo o cálculo das parcelas vencidas?",
+      "expected_output": "Para lucros cessantes parcelados: (1) identificar cada parcela mensal (18/07/2020 a 30/11/2022 = 29 parcelas); (2) para cada parcela, a correção monetária conta da data do evento (18/07/2020) e os juros de mora contam do respectivo vencimento (mês a mês); (3) calcular parcela por parcela acumulando correção + juros até a data do cálculo; (4) apresentar demonstrativo discriminado com cada parcela. Orientar sobre desconto de valores recebidos (DPVAT, benefício previdenciário, etc.) se aplicável.",
+      "files": [],
+      "assertions": [
+        "A resposta identifica corretamente o período das parcelas (29 meses aproximadamente)",
+        "A resposta orienta calcular parcela por parcela com marcos diferentes para correção e juros",
+        "A resposta menciona que os juros de mora incidem a partir do vencimento de cada parcela",
+        "A resposta menciona a necessidade de demonstrativo discriminado (art. 524, CPC)"
+      ]
+    }
+  ]
+}

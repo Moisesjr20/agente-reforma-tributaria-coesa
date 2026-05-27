@@ -1,0 +1,24 @@
+{
+  "skill_name": "project-planner",
+  "version": "1.0.0",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Quero planejar o lançamento do meu infoproduto 'Mentoria High-Ticket 90 dias'. Preciso lançar em 6 semanas, sou só eu e tenho Instagram com 2k seguidores.",
+      "expected_output": "Gera Plans/lancamento-mentoria-high-ticket/PLANO.md com fases claras (pré-lançamento, aquecimento, lançamento, onboarding) e Plans/lancamento-mentoria-high-ticket/CHECKLIST.md com tarefas acionáveis por semana, critérios de sucesso e seção de riscos.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Me ajuda a estruturar o sprint de implementação do módulo de pagamentos no GueClaw. Temos 2 devs, prazo de 3 semanas, integrações com Stripe e PagSeguro.",
+      "expected_output": "Gera Plans/sprint-modulo-pagamentos/PLANO.md com camadas DOE explícitas, tabela de fases, dependências críticas e riscos técnicos. CHECKLIST.md com tarefas por sprint, critério de conclusão técnico e seção de validação.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Preciso de um plano para aumentar meu faturamento em 50% nos próximos 90 dias. Sou consultor de marketing, tenho 3 clientes ativos e quero chegar a 6.",
+      "expected_output": "Gera Plans/crescimento-consultoria-90d/PLANO.md com objetivo mensurável, estratégia de prospecção/retenção, marcos mensais e métricas de acompanhamento. CHECKLIST.md com ações semanais concretas e rituais de revisão.",
+      "files": []
+    }
+  ]
+}

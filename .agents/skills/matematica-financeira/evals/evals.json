@@ -1,0 +1,92 @@
+[
+  {
+    "id": "eval-001",
+    "description": "Cálculo de montante com capitalização composta",
+    "input": "Calcule o montante de R$ 10.000,00 aplicado a 1,5% ao mês durante 12 meses com capitalização composta.",
+    "expected_output_contains": [
+      "M = 10000 × (1 + 0,015)^12",
+      "M = 10000 × 1,19561817",
+      "R$ 11.956,18"
+    ],
+    "tags": ["juros-compostos", "montante"]
+  },
+  {
+    "id": "eval-002",
+    "description": "Conversão de taxa anual para mensal equivalente",
+    "input": "Converta a taxa de 12% ao ano para taxa mensal equivalente (regime composto).",
+    "expected_output_contains": [
+      "(1 + 0,12)^(1/12) − 1",
+      "0,9489%",
+      "0,949%"
+    ],
+    "tags": ["conversao-de-taxas", "equivalencia"]
+  },
+  {
+    "id": "eval-003",
+    "description": "Simulação SAC completa",
+    "input": "Simule um financiamento de R$ 100.000,00 a 2% ao mês em 4 parcelas pelo sistema SAC. Mostre a tabela completa.",
+    "expected_output_contains": [
+      "Amortização: R$ 25.000,00",
+      "Juros período 1: R$ 2.000,00",
+      "Prestação 1: R$ 27.000,00",
+      "Saldo após 4ª parcela: R$ 0,00"
+    ],
+    "tags": ["sac", "amortizacao", "tabela"]
+  },
+  {
+    "id": "eval-004",
+    "description": "Cálculo PMT pela Tabela Price",
+    "input": "Qual é a prestação mensal para financiar R$ 50.000,00 em 36 meses à taxa de 1,2% ao mês pelo sistema Price?",
+    "expected_output_contains": [
+      "PMT = PV × [i × (1 + i)^n] / [(1 + i)^n − 1]",
+      "R$ 1.77"
+    ],
+    "tags": ["price", "pmt", "tabela-francesa"]
+  },
+  {
+    "id": "eval-005",
+    "description": "VPL de projeto de investimento",
+    "input": "Um projeto exige investimento inicial de R$ 50.000. Gera R$ 15.000 ao ano por 5 anos. A TMA é 10% a.a. O projeto é viável?",
+    "expected_output_contains": [
+      "VPL",
+      "R$ 6.861",
+      "viável"
+    ],
+    "tags": ["vpl", "analise-de-investimentos"]
+  },
+  {
+    "id": "eval-006",
+    "description": "Desconto comercial (por fora)",
+    "input": "Uma duplicata com valor nominal de R$ 5.000 vence em 90 dias. A taxa de desconto comercial é 3% ao mês. Qual o valor presente?",
+    "expected_output_contains": [
+      "D = N × d × n",
+      "D = 5000 × 0,03 × 3",
+      "D = R$ 450,00",
+      "PV = R$ 4.550,00"
+    ],
+    "tags": ["desconto-comercial", "antecipacao-de-recebiveis"]
+  },
+  {
+    "id": "eval-007",
+    "description": "Precisão computacional — alerta sobre float",
+    "input": "Posso usar float para calcular parcelas de financiamento em Python?",
+    "expected_output_contains": [
+      "float",
+      "imprecisão",
+      "Decimal",
+      "from decimal import Decimal"
+    ],
+    "tags": ["precisao", "python", "boas-praticas"]
+  },
+  {
+    "id": "eval-008",
+    "description": "Convenção brasileira de 252 dias úteis",
+    "input": "Como converter a taxa Selic de 14,75% ao ano para taxa diária equivalente no padrão brasileiro?",
+    "expected_output_contains": [
+      "252",
+      "(1 + 0,1475)^(1/252) − 1",
+      "dias úteis"
+    ],
+    "tags": ["selic", "252-dias-uteis", "contexto-brasileiro"]
+  }
+]

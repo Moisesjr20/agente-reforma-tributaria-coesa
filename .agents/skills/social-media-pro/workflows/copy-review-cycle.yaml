@@ -1,0 +1,581 @@
+# Copy Review Cycle Workflow
+# Workflow multi-especialista para revisão iterativa de copy
+
+name: copy-review-cycle
+version: 1.0.0
+description: |
+  Workflow de revisão de copy por múltiplos especialistas com feedback estruturado
+  e ciclo de melhorias até atingir score 8.5+/10.
+  
+  Use quando tiver copy pronto e quiser review profissional de múltiplas perspectivas.
+
+trigger:
+  type: manual
+  required_inputs:
+    - copy_text        # Copy completo para revisar
+    - copy_type        # Tipo: headline/email/vsl-script/sales-letter/landing-page
+    - target_audience  # Quem vai ler
+    - goal             # Objetivo: conversão/educação/engajamento
+
+max_iterations: 3  # Máximo 3 ciclos de revisão
+target_score: 8.5  # Score mínimo para aprovar
+
+# ============================================================================
+# TIER 0: ORCHESTRATOR
+# ============================================================================
+
+steps:
+  - id: step_0_intake
+    name: "Orchestrator: Analisar Copy e Distribuir"
+    agent: orchestrator
+    description: |
+      Copy Chief analisa o copy submetido e decide quais especialistas devem revisar.
+      
+      Critérios de seleção:
+      - Headlines/subject lines → Gary Halbert + David Ogilvy
+      - Body copy longo → Eugene Schwartz + Joe Sugarman
+      - Emails → Ben Settle + Andre Chaperon
+      - VSL scripts → Russell Brunson + Frank Kern
+      - Sales letters → Dan Kennedy + John Carlton
+      - Ads curtos → Claude Hopkins + Gary Bencivenga
+    
+    input:
+      copy_text: "{{ trigger.copy_text }}"
+      copy_type: "{{ trigger.copy_type }}"
+      target_audience: "{{ trigger.target_audience }}"
+      goal: "{{ trigger.goal }}"
+    
+    actions:
+      - analyze_copy_structure
+      - identify_copy_type
+      - select_reviewers  # Retorna lista de 2-4 especialistas
+      - prepare_review_brief
+    
+    output:
+      selected_reviewers:
+        - reviewer_1: "{{ specialist_name }}"
+        - reviewer_2: "{{ specialist_name }}"
+        - reviewer_3: "{{ specialist_name }}"  # Opcional
+      review_brief:
+        focus_areas:
+          - headline_effectiveness
+          - hook_strength
+          - value_proposition
+          - objection_handling
+          - cta_clarity
+        context: "{{ audience_and_goal }}"
+
+# ============================================================================
+# TIER 1: SPECIALIST REVIEWS (Paralelo)
+# ============================================================================
+
+  - id: step_1_parallel_reviews
+    name: "Specialists: Revisão Multi-Perspectiva"
+    type: parallel  # Todos revisam ao mesmo tempo
+    agents: "{{ step_0_intake.output.selected_reviewers }}"
+    description: |
+      Cada especialista revisa o copy da sua perspectiva única.
+      
+      Todos fornecem:
+      1. Score 0-10 (justificado)
+      2. Top 3 pontos fortes
+      3. Top 3 pontos fracos
+      4. Sugestões específicas de melhoria
+      5. Exemplo de reescrita (se score < 8.5)
+    
+    input:
+      copy_text: "{{ trigger.copy_text }}"
+      copy_type: "{{ trigger.copy_type }}"
+      review_brief: "{{ step_0_intake.output.review_brief }}"
+    
+    reviewer_1_task:
+      agent: "{{ step_0_intake.output.selected_reviewers.reviewer_1 }}"
+      prompt: |
+        Revise este {{ copy_type }} da sua perspectiva como {{ agent_name }}.
+        
+        COPY A REVISAR:
+        ---
+        {{ copy_text }}
+        ---
+        
+        PÚBLICO: {{ target_audience }}
+        OBJETIVO: {{ goal }}
+        
+        FORNEÇA:
+        
+        1. SCORE (0-10):
+        [Número] / 10
+        
+        Justificativa em 2-3 frases do por quê deste score.
+        
+        2. TOP 3 PONTOS FORTES:
+        ✅ [Ponto forte 1 - específico]
+        ✅ [Ponto forte 2 - específico]
+        ✅ [Ponto forte 3 - específico]
+        
+        3. TOP 3 PONTOS FRACOS:
+        ❌ [Ponto fraco 1 - específico]
+        ❌ [Ponto fraco 2 - específico]
+        ❌ [Ponto fraco 3 - específico]
+        
+        4. SUGESTÕES DE MELHORIA:
+        
+        [Para cada ponto fraco, sugestão acionável]
+        
+        Exemplo:
+        ❌ Headline not curiosity-driven
+        💡 Sugestão: Mude de "Aprenda Marketing" para "O erro que 90% dos 
+           consultores comete (custa R$ 200K/ano)"
+        
+        5. EXEMPLO DE REESCRITA (se score < 8.5):
+        
+        [Reescreva a parte mais fraca do copy aplicando seus princípios]
+      
+      output_format:
+        score: number
+        score_justification: string
+        strengths: array[3]
+        weaknesses: array[3]
+        suggestions: array
+        rewrite_example: string | null
+    
+    reviewer_2_task:
+      agent: "{{ step_0_intake.output.selected_reviewers.reviewer_2 }}"
+      prompt: "[Mesmo template do reviewer_1]"
+      output_format: "[Mesmo formato]"
+    
+    reviewer_3_task:  # Opcional
+      agent: "{{ step_0_intake.output.selected_reviewers.reviewer_3 }}"
+      prompt: "[Mesmo template do reviewer_1]"
+      output_format: "[Mesmo formato]"
+    
+    aggregation:
+      calculate_average_score:
+        formula: "(reviewer_1.score + reviewer_2.score + reviewer_3.score) / num_reviewers"
+      
+      identify_common_weaknesses:
+        method: "Contar quantos revisores mencionaram problema similar"
+        threshold: 2  # Se 2+ revisores apontam mesmo problema, é crítico
+      
+      consolidate_suggestions:
+        priority_high: "Problemas mencionados por 2+ revisores"
+        priority_medium: "Problemas mencionados por 1 revisor + score baixo"
+        priority_low: "Sugestões de polishing"
+
+# ============================================================================
+# TIER 0: ORCHESTRATOR - CONSOLIDAÇÃO
+# ============================================================================
+
+  - id: step_2_consolidate_feedback
+    name: "Orchestrator: Consolidar Feedback"
+    agent: orchestrator
+    depends_on: step_1_parallel_reviews
+    description: |
+      Copy Chief agrega os reviews de todos especialistas e prepara relatório consolidado.
+    
+    input:
+      reviews: "{{ step_1_parallel_reviews.output }}"
+      average_score: "{{ step_1_parallel_reviews.aggregation.average_score }}"
+      common_weaknesses: "{{ step_1_parallel_reviews.aggregation.common_weaknesses }}"
+    
+    actions:
+      - calculate_final_score
+      - prioritize_improvements
+      - generate_consolidated_report
+      - decide_next_action  # Aprovar OU solicitar revisão
+    
+    output:
+      final_score: "{{ average_score }}"
+      status:
+        approved: "{{ final_score >= 8.5 }}"
+        needs_revision: "{{ final_score < 8.5 }}"
+      
+      consolidated_report:
+        summary: |
+          Score Final: {{ final_score }}/10
+          
+          Revisores:
+          - {{ reviewer_1 }}: {{ score_1 }}/10
+          - {{ reviewer_2 }}: {{ score_2 }}/10
+          - {{ reviewer_3 }}: {{ score_3 }}/10
+          
+          Status: {{ status }}
+        
+        pontos_fortes_consensus:
+          # Pontos mencionados por 2+ revisores
+          - "{{ common_strength_1 }}"
+          - "{{ common_strength_2 }}"
+        
+        problemas_criticos:
+          # Problemas mencionados por 2+ revisores (MUST FIX)
+          - problema: "{{ critical_issue_1 }}"
+            mentioned_by: ["{{ reviewer_1 }}", "{{ reviewer_2 }}"]
+            impact: "{{ high/medium }}"
+            suggested_fix: "{{ consolidated_suggestion }}"
+          - problema: "{{ critical_issue_2 }}"
+            mentioned_by: ["{{ reviewer_2 }}", "{{ reviewer_3 }}"]
+            impact: "{{ high/medium }}"
+            suggested_fix: "{{ consolidated_suggestion }}"
+        
+        melhorias_secundarias:
+          # Sugestões de 1 revisor (NICE TO HAVE)
+          - "{{ suggestion_1 }}"
+          - "{{ suggestion_2 }}"
+        
+        exemplos_reescrita:
+          # Se score < 8.5, mostrar rewrites dos especialistas
+          - section: "{{ headline }}"
+            current: "{{ current_headline }}"
+            suggested_by_{{ reviewer_name }}: "{{ rewrite_example }}"
+
+# ============================================================================
+# DECISION POINT: Aprovar ou Iterar?
+# ============================================================================
+
+  - id: decision_approve_or_revise
+    name: "Decision: Approve or Request Revision"
+    type: conditional
+    depends_on: step_2_consolidate_feedback
+    
+    conditions:
+      - condition: "{{ step_2_consolidate_feedback.output.final_score >= 8.5 }}"
+        next_step: step_3_approve
+      
+      - condition: "{{ step_2_consolidate_feedback.output.final_score < 8.5 AND iteration_count < 3 }}"
+        next_step: step_4_request_revision
+      
+      - condition: "{{ step_2_consolidate_feedback.output.final_score < 8.5 AND iteration_count >= 3 }}"
+        next_step: step_5_final_report_unapproved
+
+# ============================================================================
+# PATH A: APROVADO (Score >= 8.5)
+# ============================================================================
+
+  - id: step_3_approve
+    name: "Orchestrator: Aprovar Copy"
+    agent: orchestrator
+    description: |
+      Copy atingiu score 8.5+/10. Aprovado para uso.
+      
+      Gera certificado de qualidade com scores de todos revisores.
+    
+    input:
+      final_score: "{{ step_2_consolidate_feedback.output.final_score }}"
+      consolidated_report: "{{ step_2_consolidate_feedback.output.consolidated_report }}"
+    
+    actions:
+      - generate_quality_certificate
+      - save_approved_copy
+    
+    output:
+      status: "APPROVED"
+      certificate:
+        score: "{{ final_score }}/10"
+        approved_by:
+          - "{{ reviewer_1 }}: {{ score_1 }}/10"
+          - "{{ reviewer_2 }}: {{ score_2 }}/10"
+          - "{{ reviewer_3 }}: {{ score_3 }}/10"
+        date: "{{ current_date }}"
+        iteration: "{{ iteration_count }}"
+      
+      message: |
+        ✅ COPY APROVADO!
+        
+        Score Final: {{ final_score }}/10
+        Iterações: {{ iteration_count }}
+        
+        Este copy foi revisado por {{ num_reviewers }} especialistas e atingiu
+        o score mínimo de qualidade. Pronto para uso.
+        
+        Pontos Fortes (Consensus):
+        {{ pontos_fortes_consensus }}
+        
+        Certificado de Qualidade salvo em: {{ certificate_path }}
+
+# ============================================================================
+# PATH B: PRECISA REVISÃO (Score < 8.5, Iteration < 3)
+# ============================================================================
+
+  - id: step_4_request_revision
+    name: "Orchestrator: Solicitar Revisão do Copy"
+    agent: orchestrator
+    description: |
+      Copy score < 8.5. Solicita revisão do usuário com feedback consolidado.
+      
+      Usuário deve revisar o copy baseado nas sugestões e resubmeter.
+    
+    input:
+      final_score: "{{ step_2_consolidate_feedback.output.final_score }}"
+      consolidated_report: "{{ step_2_consolidate_feedback.output.consolidated_report }}"
+      iteration_count: "{{ current_iteration }}"
+    
+    output:
+      status: "NEEDS_REVISION"
+      message: |
+        ⚠️ SCORE: {{ final_score }}/10 (abaixo do mínimo 8.5)
+        
+        Iteração {{ iteration_count }}/3
+        
+        PROBLEMAS CRÍTICOS (MUST FIX):
+        {{ problemas_criticos }}
+        
+        MELHORIAS SECUNDÁRIAS (NICE TO HAVE):
+        {{ melhorias_secundarias }}
+        
+        EXEMPLOS DE REESCRITA:
+        {{ exemplos_reescrita }}
+        
+        Por favor, revise seu copy baseado neste feedback e resubmeta.
+        
+        [Botão: Resubmeter Copy Revisado]
+      
+      next_action:
+        wait_for: user_resubmission
+        on_resubmit:
+          restart_from: step_0_intake
+          increment_iteration: true
+          max_iterations: 3
+
+# ============================================================================
+# PATH C: NÃO APROVADO APÓS 3 ITERAÇÕES
+# ============================================================================
+
+  - id: step_5_final_report_unapproved
+    name: "Orchestrator: Relatório Final (Não Aprovado)"
+    agent: orchestrator
+    description: |
+      Copy não atingiu score 8.5 após 3 iterações.
+      
+      Gera relatório final com todos os feedbacks e recomenda ação.
+    
+    input:
+      final_score: "{{ step_2_consolidate_feedback.output.final_score }}"
+      all_iterations_history: "{{ iterations[0..2] }}"
+    
+    output:
+      status: "NOT_APPROVED_AFTER_3_ITERATIONS"
+      message: |
+        ❌ COPY NÃO APROVADO
+        
+        Score Final: {{ final_score }}/10 (requer 8.5+)
+        Iterações: 3/3 (máximo atingido)
+        
+        HISTÓRICO:
+        - Iteração 1: {{ iteration_1_score }}/10
+        - Iteração 2: {{ iteration_2_score }}/10
+        - Iteração 3: {{ iteration_3_score }}/10
+        
+        PROBLEMAS PERSISTENTES:
+        {{ problemas_que_nao_foram_corrigidos }}
+        
+        RECOMENDAÇÕES:
+        
+        1. OPÇÃO A: Começar do Zero
+           Use task 'write-{{ copy_type }}' para gerar novo copy com specialist.
+        
+        2. OPÇÃO B: Contratar Copywriter Profissional
+           Para projetos críticos, considere contratar copywriter humano.
+        
+        3. OPÇÃO C: Aceitar Score Atual
+           Se não for crítico, você pode usar o copy mesmo com score < 8.5.
+           (Não recomendado para campanhas pagas high-budget.)
+        
+        Relatório completo salvo em: {{ report_path }}
+
+# ============================================================================
+# METRICS & TRACKING
+# ============================================================================
+
+metrics:
+  track:
+    - average_score_per_iteration
+    - most_common_weaknesses
+    - approval_rate  # % de copies aprovados
+    - average_iterations_to_approval
+    - reviewer_agreement_score  # Quanto os revisores concordam
+  
+  benchmarks:
+    excellent: ">= 9.0"
+    good: "8.5 - 8.9"
+    needs_work: "7.0 - 8.4"
+    poor: "< 7.0"
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+
+config:
+  reviewer_pool:
+    tier_1_direct_response:
+      - gary-halbert
+      - eugene-schwartz
+      - dan-kennedy
+      - claude-hopkins
+      - john-carlton
+    
+    tier_1_modern_funnels:
+      - russell-brunson
+      - frank-kern
+      - todd-brown
+    
+    tier_1_email_specialists:
+      - ben-settle
+      - andre-chaperon
+    
+    tier_1_long_copy:
+      - david-ogilvy
+      - joe-sugarman
+      - gary-bencivenga
+    
+    tier_1_traffic:
+      - justin-brooke
+      - molly-pittman
+  
+  auto_selection_rules:
+    headline:
+      required: [gary-halbert, david-ogilvy]
+      optional: [eugene-schwartz]
+    
+    email:
+      required: [ben-settle]
+      optional: [andre-chaperon, russell-brunson]
+    
+    vsl_script:
+      required: [russell-brunson, frank-kern]
+      optional: [joe-sugarman]
+    
+    sales_letter:
+      required: [dan-kennedy, joe-sugarman]
+      optional: [gary-halbert, john-carlton]
+    
+    landing_page:
+      required: [russell-brunson, eugene-schwartz]
+      optional: [david-ogilvy]
+    
+    fb_ad:
+      required: [molly-pittman, eugene-schwartz]
+      optional: [gary-halbert]
+
+# ============================================================================
+# EXAMPLE USAGE
+# ============================================================================
+
+example_run:
+  input:
+    copy_text: |
+      Headline: "Aprenda Marketing Digital em 30 Dias"
+      
+      Body: Curso completo de marketing digital com certificado.
+      Módulos: SEO, Facebook Ads, Email Marketing.
+      
+      Investimento: R$ 497
+      
+      Compre agora!
+    
+    copy_type: "landing_page"
+    target_audience: "Freelancers que querem ganhar mais"
+    goal: "conversão (venda do curso)"
+  
+  expected_flow:
+    iteration_1:
+      orchestrator_selects:
+        - russell-brunson  # Funnel + landing page expert
+        - eugene-schwartz  # 5 níveis de consciência
+        - david-ogilvy     # Headlines + long copy
+      
+      scores:
+        russell_brunson: 5.5/10
+        eugene_schwartz: 6.0/10
+        david_ogilvy: 5.0/10
+        average: 5.5/10
+      
+      critical_issues:
+        - "Headline genérica (não curiosity-driven)"
+        - "Sem value proposition clara"
+        - "CTA fraco ('Compre agora' sem urgência/benefício)"
+        - "Falta proof (testimonials, resultados)"
+      
+      status: NEEDS_REVISION
+    
+    iteration_2:
+      user_revised_copy: |
+        Headline: "O Erro que 90% dos Freelancers Comete (Custa R$ 50K/Ano em Vendas Perdidas)"
+        
+        Se você está trabalhando 60h/semana mas ganhando < R$ 5K/mês...
+        
+        O problema não é falta de clientes. É falta de SISTEMA.
+        
+        Neste curso você vai aprender:
+        ✓ Como criar funil de vendas que converte 30%+ (vs 3% padrão)
+        ✓ SEO local para dominar sua região
+        ✓ Facebook Ads que geram leads R$ 5-15 (não R$ 50+)
+        ✓ Email marketing que vende sem ser chato
+        
+        347 freelancers já triplicaram renda em 90 dias.
+        
+        Investimento: R$ 497 (12× sem juros)
+        Garantia 30 dias ou devolvo 100%.
+        
+        [CTA: Garantir Minha Vaga Agora]
+      
+      scores:
+        russell_brunson: 8.0/10
+        eugene_schwartz: 8.5/10
+        david_ogilvy: 8.0/10
+        average: 8.17/10
+      
+      status: NEEDS_REVISION (ainda < 8.5)
+      
+      remaining_issues:
+        - "Headline muito longa (21 palavras vs ideal 10-15)"
+        - "Proof não tem nomes/números específicos"
+        - "Falta módulos detalhados"
+    
+    iteration_3:
+      user_revised_copy: |
+        Headline: "O Erro de R$ 50K/Ano Que 90% dos Freelancers Comete"
+        Subheadline: "347 freelancers corrigiram isso e triplicaram renda em 90 dias"
+        
+        [Rest of improved copy...]
+      
+      scores:
+        russell_brunson: 9.0/10
+        eugene_schwartz: 8.5/10
+        david_ogilvy: 9.0/10
+        average: 8.83/10
+      
+      status: APPROVED ✅
+      
+      certificate_issued: true
+      iterations_to_approval: 3
+
+# ============================================================================
+# NOTES FOR IMPLEMENTATION
+# ============================================================================
+
+implementation_notes: |
+  1. Cada specialist deve ter template de review estruturado (score + justificativa + sugestões)
+  
+  2. Aggregation logic deve identificar padrões (2+ revisores mencionam = crítico)
+  
+  3. UI/UX para resubmissão deve ser clara (mostrar side-by-side: copy atual vs sugestões)
+  
+  4. Salvar histórico de todas iterações (useful para learning)
+  
+  5. Certificado de qualidade é psychological trigger (copy aprovado por Gary Halbert!)
+  
+  6. Max 3 iterações previne loop infinito (depois disso, usuário decide)
+  
+  7. Auto-selection de reviewers baseado em copy_type economiza tempo do usuário
+
+quality_assurance:
+  checklist:
+    - [ ] Orchestrator seleciona 2-4 reviewers apropriados para copy_type
+    - [ ] Reviews acontecem em paralelo (não sequencial)
+    - [ ] Cada review tem score + justificativa + sugestões específicas
+    - [ ] Aggregation identifica problemas críticos (2+ reviewers)
+    - [ ] Relatório consolidado é acionável (não vago)
+    - [ ] Decision logic funciona (aprovar >= 8.5, revisar < 8.5)
+    - [ ] Max 3 iterações implementado corretamente
+    - [ ] Certificado de qualidade gerado quando aprovado
+    - [ ] Histórico salvo para todas iterações

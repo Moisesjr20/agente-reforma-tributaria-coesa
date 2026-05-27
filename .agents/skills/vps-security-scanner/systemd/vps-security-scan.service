@@ -1,0 +1,28 @@
+[Unit]
+Description=VPS Security Scanner Service
+After=network.target docker.service
+Wants=network.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/gueclaw-agent
+
+# Load environment variables from .env
+EnvironmentFile=/opt/gueclaw-agent/.env
+
+# Execute security scan
+ExecStart=/bin/bash /opt/gueclaw/automation/daily-security-scan.sh
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vps-security-scan
+
+# Resource limits (prevent runaway processes)
+TimeoutStartSec=600
+CPUQuota=50%
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target
