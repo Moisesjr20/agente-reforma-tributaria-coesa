@@ -1,16 +1,57 @@
 ---
 name: rag-reforma-tributaria
 description: "Agente público de RAG vetorial no Supabase para responder dúvidas sobre a Reforma Tributária Brasileira (EC 132/2023, IBS, CBS, IS). Use este documento como spec completo de construção — cobrindo ingestão de documentos, pipeline vetorial, Edge Function pública e modelo de resposta. Não tem interface de usuário."
-version: 1.0.0
+version: 2.0.0
 category: ai-agent
 framework: doe
-updated: 2026-05-19
-status: in_progress
+updated: 2026-06-01
+status: done
 ---
 
 # Agente RAG — Reforma Tributária Brasileira
 
 > **Operação DOE** — Toda execução segue: **Análise → Plano → Aprovação → Execução → Review**.
+
+> ⚠️ **Atualização de arquitetura (v2.0).** A implementação consolidou o pipeline original.
+> O que mudou em relação às seções históricas abaixo (mantidas como registro das fases):
+> - **Embeddings:** Jina/Google `768 dims` → **OpenAI `text-embedding-3-small` (1536 dims)** via OpenRouter.
+> - **Armazenamento:** tabelas `documents` + `chunks` + RPC `match_chunks` → tabela única **`knowledge_documents`** + RPC **`match_documents`** (ver `supabase/migrations/001_rag_reforma_tributaria.sql`).
+> - **Ingestão:** scripts multi-etapa (`parse-documents.py`, `chunk-documents.py`, `embed-and-store.py`) → script único **`execution/rag-reforma/update_knowledge_base.py`**.
+> - O schema legado de 768 dims é removido por `supabase/migrations/002_drop_legacy_768.sql`.
+>
+> As seções marcadas com `[x]` adiante refletem o **plano v1.0** e podem citar nomes obsoletos.
+
+---
+
+## Testes
+
+O projeto tem **60 testes automatizados** cobrindo as três camadas. Nenhum teste requer chaves de API ou rede externa.
+
+### Comandos
+
+```powershell
+# Edge Function (Deno) — 16 testes
+deno test supabase/functions/ask-reforma/index.test.ts --allow-env
+
+# Frontend React (Vitest) — 22 testes
+npm --prefix frontend test
+
+# Pipeline de ingestão (pytest) — 22 testes
+python -m pytest execution/rag-reforma/test_update_knowledge_base.py -v
+```
+
+### O que cada suite cobre
+
+| Suite | Arquivo | Cobre |
+|---|---|---|
+| Deno | `supabase/functions/ask-reforma/index.test.ts` | `normalizeQuery` (6), `classifyComplexity` (6), `isRateLimited` (4) |
+| Vitest — hook | `frontend/src/hooks/useChat.test.ts` | estado inicial, guards < 10 chars/loading, fluxo de mensagens, erro de rede |
+| Vitest — componente | `frontend/src/components/ChatInput.test.tsx` | botão/aviso por tamanho, Enter/Shift+Enter, estado de loading |
+| pytest | `execution/rag-reforma/test_update_knowledge_base.py` | `_HTMLTextExtractor` (8), `split_into_chunks` (7), `content_hash` (3), `extract_text_*` (4) |
+
+### Restrição aprendida
+
+A Edge Function usa `Deno.serve` no nível do módulo. Para que possa ser importada nos testes sem abrir uma porta TCP, o bloco do servidor deve ser guardado com `if (import.meta.main)`.
 
 ---
 
@@ -46,7 +87,7 @@ Arquivos locais em `D:\Clientes de BI\projeto coesa\base de conhecimento\`:
 ```
 ┌─────────────────────────────────────────────────────┐
 │                   USUÁRIO FINAL                     │
-│         (WhatsApp / site / qualquer canal)          │
+│      (site / WhatsApp / qualquer canal)             │
 └─────────────────────┬───────────────────────────────┘
                       │ HTTP POST /functions/v1/ask-reforma
                       ▼
@@ -55,37 +96,32 @@ Arquivos locais em `D:\Clientes de BI\projeto coesa\base de conhecimento\`:
 │              ask-reforma (Deno)                     │
 │                                                     │
 │  1. Recebe { question: string }                     │
-│  2. Gera embedding da pergunta (Jina AI)            │
-│  3. Busca chunks similares (pgvector)               │
-│  4. Monta prompt com contexto + pergunta            │
-│  5. Roteia para LLM: Qwen (simples) / Gemini (complexo)│
-│  6. Retorna { answer, sources, confidence }         │
-└───────┬──────────────────┬──────────┬───────────────┘
-        │                  │          │
-        ▼                  ▼          ▼
-┌──────────────┐  ┌──────────────────┐  ┌──────────────────────────┐
-│ SUPABASE DB  │  │  JINA AI         │  │  OPENROUTER API          │
-│ pgvector     │  │  (embeddings     │  │  openrouter.ai/api/v1    │
-│              │  │  apenas)         │  │                          │
-│ chunks       │  │  jina-embeddings │  │  google/gemini-flash-1.5 │
-│ embeddings   │  │  -v2-base-pt     │  │  (trocável via env var)  │
-│ documents    │  │  768 dims gratis │  │                          │
-│ query_logs   │  └──────────────────┘  └──────────────────────────┘
-└──────────────┘
-│ ⚠️ OpenRouter não suporta embeddings — Google Gemini é usado exclusivamente para esta etapa
+│  2. Normaliza + embeda a pergunta (OpenAI 1536)     │
+│  3. Busca chunks similares (RPC match_documents)    │
+│  4. Classifica complexidade e roteia o modelo       │
+│  5. Monta prompt com contexto + pergunta            │
+│  6. Retorna { answer, sources, confidence, ... }    │
+└───────┬──────────────────────────────┬──────────────┘
+        │                              │
+        ▼                              ▼
+┌──────────────────────┐  ┌──────────────────────────────────────┐
+│ SUPABASE DB          │  │  OPENROUTER API (openrouter.ai/v1)     │
+│ pgvector (HNSW)      │  │                                        │
+│                      │  │  embeddings:                           │
+│ knowledge_documents  │  │    openai/text-embedding-3-small (1536)│
+│ (content+embedding)  │  │  chat (roteado por complexidade):      │
+│ query_logs           │  │    simples  → qwen-2.5-72b-instruct    │
+│                      │  │    complexo → google/gemini-flash-1.5  │
+└──────────────────────┘  └──────────────────────────────────────┘
 
 ──── PIPELINE DE INGESTÃO (one-time + updates) ────
 
-documentos PDF/HTML
+documentos PDF/HTML/TXT (sources.json)
         │
         ▼
-execution/parse-documents.py      → extrai texto limpo
-        │
-        ▼
-execution/chunk-documents.py      → divide em chunks semânticos
-        │
-        ▼
-execution/embed-and-store.py      → gera embeddings + insere no Supabase
+execution/rag-reforma/update_knowledge_base.py
+   extrai texto → chunka (1000/overlap 200) → embeda (OpenAI 1536)
+   → grava em knowledge_documents
 ```
 
 ---

@@ -1,41 +1,59 @@
 -- ============================================================
--- Migração 001 — RAG Reforma Tributária
+-- Migração 001 — Schema RAG Reforma Tributária (canônico)
 -- Projeto: COESA Contabilidade — Agente Público
 -- Execute no Supabase SQL Editor (Dashboard > SQL Editor > New query)
+--
+-- Embeddings: OpenAI text-embedding-3-small (1536 dims) via OpenRouter
+-- Ingestão:   execution/rag-reforma/update_knowledge_base.py
+-- Consumo:    supabase/functions/ask-reforma (RPC match_documents)
 -- ============================================================
 
 -- 1. Habilitar extensão pgvector
 create extension if not exists vector;
 
--- 2. Tabela de documentos fonte
-create table if not exists documents (
-  id          uuid primary key default gen_random_uuid(),
-  title       text not null,
-  slug        text not null unique,
-  source_type text not null check (source_type in ('lei', 'nota-tecnica', 'manual', 'faq', 'resolucao')),
-  version     text,
-  ingested_at timestamptz default now()
+-- 2. Base de conhecimento (chunks + embeddings)
+--    user_id NULL = documento global (agente público COESA)
+create table if not exists public.knowledge_documents (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid references auth.users(id) on delete cascade,
+  content    text not null,
+  metadata   jsonb default '{}'::jsonb,
+  embedding  vector(1536),
+  created_at timestamptz default now()
 );
 
--- 3. Tabela de chunks com embeddings
-create table if not exists chunks (
-  id          uuid primary key default gen_random_uuid(),
-  document_id uuid not null references documents(id) on delete cascade,
-  content     text not null,
-  chunk_index int  not null,
-  token_count int,
-  embedding   vector(768),    -- Google text-embedding-004 = 768 dims
-  metadata    jsonb default '{}',
-  created_at  timestamptz default now()
-);
-
--- 4. Índice HNSW para busca vetorial eficiente
-create index if not exists chunks_embedding_hnsw_idx
-  on chunks using hnsw (embedding vector_cosine_ops)
+-- 3. Índice HNSW para busca vetorial eficiente
+create index if not exists knowledge_documents_embedding_hnsw_idx
+  on public.knowledge_documents
+  using hnsw (embedding vector_cosine_ops)
   with (m = 16, ef_construction = 64);
 
--- 5. Tabela de logs de consultas
-create table if not exists query_logs (
+-- 4. RPC de busca vetorial (consumida pela Edge Function ask-reforma)
+create or replace function public.match_documents (
+  query_embedding vector(1536),
+  match_threshold float,
+  match_count     int,
+  target_user_id  uuid default null
+)
+returns table (id uuid, content text, metadata jsonb, similarity float)
+language plpgsql as $$
+begin
+  return query
+  select
+    kd.id,
+    kd.content,
+    kd.metadata,
+    1 - (kd.embedding <=> query_embedding) as similarity
+  from public.knowledge_documents kd
+  where (kd.user_id = target_user_id or kd.user_id is null)
+    and 1 - (kd.embedding <=> query_embedding) > match_threshold
+  order by kd.embedding <=> query_embedding
+  limit match_count;
+end;
+$$;
+
+-- 5. Logs de consultas (best-effort, escrito pela Edge Function)
+create table if not exists public.query_logs (
   id          uuid primary key default gen_random_uuid(),
   question    text not null,
   answer      text,
@@ -46,61 +64,31 @@ create table if not exists query_logs (
   created_at  timestamptz default now()
 );
 
--- 6. Função RPC de busca vetorial
-create or replace function match_chunks (
-  query_embedding vector(768),
-  match_threshold float default 0.75,
-  match_count     int   default 5
-)
-returns table (
-  id             uuid,
-  content        text,
-  similarity     float,
-  document_title text,
-  source_type    text,
-  slug           text
-)
-language sql stable
-as $$
-  select
-    c.id,
-    c.content,
-    1 - (c.embedding <=> query_embedding) as similarity,
-    d.title       as document_title,
-    d.source_type,
-    d.slug
-  from chunks c
-  join documents d on d.id = c.document_id
-  where 1 - (c.embedding <=> query_embedding) > match_threshold
-  order by c.embedding <=> query_embedding
-  limit match_count;
-$$;
+-- 6. Row Level Security
+alter table public.knowledge_documents enable row level security;
+alter table public.query_logs          enable row level security;
 
--- 7. Row Level Security
-alter table documents  enable row level security;
-alter table chunks     enable row level security;
-alter table query_logs enable row level security;
-
--- Leitura pública para documents e chunks (agente público)
-create policy "public read documents"
-  on documents for select
+-- Leitura pública dos documentos globais (agente público)
+create policy "public read global docs"
+  on public.knowledge_documents for select
   to anon, authenticated
+  using (user_id is null);
+
+-- service_role tem acesso total (ingestão + Edge Function)
+create policy "service role full access"
+  on public.knowledge_documents for all
+  to service_role
   using (true);
 
-create policy "public read chunks"
-  on chunks for select
-  to anon, authenticated
-  using (true);
-
--- query_logs: somente service_role pode ler/escrever
+-- query_logs: somente service_role lê/escreve
 create policy "service role only query_logs"
-  on query_logs for all
+  on public.query_logs for all
   to service_role
   using (true);
 
 -- ============================================================
--- Verificação pós-execução (rode após a migração):
--- select extname, extversion from pg_extension where extname = 'vector';
--- select count(*) from documents;
--- select count(*) from chunks;
+-- Verificação pós-execução:
+--   select extname, extversion from pg_extension where extname = 'vector';
+--   select count(*) from knowledge_documents;
+--   select match_documents(array_fill(0, array[1536])::vector(1536), 0.3, 3);
 -- ============================================================

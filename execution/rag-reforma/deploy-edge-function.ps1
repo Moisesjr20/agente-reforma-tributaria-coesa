@@ -37,7 +37,6 @@ supabase link --project-ref $projectRef
 Write-Host ""
 Write-Host "[2/3] Configurando secrets..." -ForegroundColor Yellow
 supabase secrets set `
-    JINA_API_KEY=$env:JINA_API_KEY `
     OPENROUTER_API_KEY=$env:OPENROUTER_API_KEY `
     OPENROUTER_MODEL_SIMPLE=$env:OPENROUTER_MODEL_SIMPLE `
     OPENROUTER_MODEL_COMPLEX=$env:OPENROUTER_MODEL_COMPLEX `
