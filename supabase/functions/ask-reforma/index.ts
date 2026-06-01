@@ -33,7 +33,8 @@ Regras obrigatórias:
 - Responda sempre em português do Brasil
 - Para questões técnicas ou analíticas, desenvolva a resposta completamente: contexto, regra, exceções, impactos práticos e exemplos quando aplicável
 - Não trunce a resposta por brevidade — uma explicação incompleta é pior do que uma resposta longa e precisa
-- Use estrutura clara com títulos, listas e subdivisões quando a resposta envolver múltiplos aspectos`;
+- Use estrutura clara com títulos, listas e subdivisões quando a resposta envolver múltiplos aspectos
+- CRÍTICO: se você introduzir uma lista com frases como "os seguintes pontos", "as seguintes regras", "os itens abaixo" etc., você OBRIGATORIAMENTE deve escrever TODOS os itens da lista antes de encerrar a resposta. Nunca deixe uma lista anunciada sem conteúdo`;
 
 // ---------------------------------------------------------------------------
 // Rate limiting (in-memory, por IP)
@@ -43,7 +44,7 @@ const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
 const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60_000;
 
-function isRateLimited(ip: string): boolean {
+export function isRateLimited(ip: string): boolean {
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
   if (!entry || now - entry.windowStart > RATE_WINDOW_MS) {
@@ -87,7 +88,7 @@ const META_PATTERNS = [
   /^fala\s+sobre\s+/i,
 ];
 
-function normalizeQuery(q: string): string {
+export function normalizeQuery(q: string): string {
   let core = q;
 
   for (const p of META_PATTERNS) {
@@ -137,7 +138,7 @@ interface Chunk {
   similarity: number;
 }
 
-function classifyComplexity(
+export function classifyComplexity(
   question: string,
   chunks: Chunk[],
   charThreshold: number,
@@ -159,7 +160,7 @@ function classifyComplexity(
 // Main handler
 // ---------------------------------------------------------------------------
 
-Deno.serve(async (req: Request) => {
+if (import.meta.main) Deno.serve(async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: CORS_HEADERS });
@@ -203,7 +204,7 @@ Deno.serve(async (req: Request) => {
   const MODEL_SIMPLE =
     Deno.env.get("OPENROUTER_MODEL_SIMPLE") ?? "qwen/qwen-2.5-72b-instruct";
   const MODEL_COMPLEX =
-    Deno.env.get("OPENROUTER_MODEL_COMPLEX") ?? "google/gemini-flash-1.5";
+    Deno.env.get("OPENROUTER_MODEL_COMPLEX") ?? "google/gemini-2.5-flash";
   const CHAR_THRESHOLD = parseInt(
     Deno.env.get("ROUTER_COMPLEXITY_CHAR_THRESHOLD") ?? "100",
   );
@@ -227,7 +228,7 @@ Deno.serve(async (req: Request) => {
       {
         query_embedding: embedding,
         match_threshold: 0.30,
-        match_count: 8,
+        match_count: 6,
       },
     );
 
@@ -338,4 +339,4 @@ Deno.serve(async (req: Request) => {
     console.error("ask-reforma error:", err instanceof Error ? err.message : err);
     return jsonResponse({ error: "Erro interno. Tente novamente em instantes." }, 500);
   }
-});
+}); // fim if (import.meta.main)
