@@ -222,5 +222,12 @@
     "source_type": "portal",
     "format": "txt",
     "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-14.txt"
+  },
+  {
+    "slug": "guia-duvidas-respostas-reforma",
+    "title": "Guia de Dúvidas e Respostas — Reforma Tributária (IBS, CBS, MEI, Simples, Cashback)",
+    "source_type": "faq",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\base de conhecimento\\novos_conheicmmento\\realtorio de duvidas e respostas.txt"
   }
 ]
