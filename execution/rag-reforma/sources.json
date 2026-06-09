@@ -117,5 +117,110 @@
     "source_type": "nota-tecnica",
     "format": "txt",
     "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\plp-68-2024-resumo-servicos-financeiros.txt"
+  },
+  {
+    "slug": "econet",
+    "title": "Econet — Reforma Tributária (Parte 1)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet.txt"
+  },
+  {
+    "slug": "econet-1",
+    "title": "Econet — Reforma Tributária (Parte 2)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-1.txt"
+  },
+  {
+    "slug": "econet-2",
+    "title": "Econet — Reforma Tributária (Parte 3)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-2.txt"
+  },
+  {
+    "slug": "econet-3",
+    "title": "Econet — Reforma Tributária (Parte 4)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-3.txt"
+  },
+  {
+    "slug": "econet-4",
+    "title": "Econet — Reforma Tributária (Parte 5)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-4.txt"
+  },
+  {
+    "slug": "econet-5",
+    "title": "Econet — Reforma Tributária (Parte 6)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-5.txt"
+  },
+  {
+    "slug": "econet-6",
+    "title": "Econet — Reforma Tributária (Parte 7)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-6.txt"
+  },
+  {
+    "slug": "econet-7",
+    "title": "Econet — Reforma Tributária (Parte 8)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-7.txt"
+  },
+  {
+    "slug": "econet-8",
+    "title": "Econet — Reforma Tributária (Parte 9)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-8.txt"
+  },
+  {
+    "slug": "econet-9",
+    "title": "Econet — Reforma Tributária (Parte 10)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-9.txt"
+  },
+  {
+    "slug": "econet-10",
+    "title": "Econet — Reforma Tributária (Parte 11)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-10.txt"
+  },
+  {
+    "slug": "econet-11",
+    "title": "Econet — Reforma Tributária (Parte 12)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-11.txt"
+  },
+  {
+    "slug": "econet-12",
+    "title": "Econet — Reforma Tributária (Parte 13)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-12.txt"
+  },
+  {
+    "slug": "econet-13",
+    "title": "Econet — Reforma Tributária (Parte 14)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-13.txt"
+  },
+  {
+    "slug": "econet-14",
+    "title": "Econet — Reforma Tributária (Parte 15)",
+    "source_type": "portal",
+    "format": "txt",
+    "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\econet-14.txt"
   }
 ]
