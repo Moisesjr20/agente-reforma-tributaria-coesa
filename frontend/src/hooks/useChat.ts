@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
-import type { Message, ApiResponse } from '../types';
-
-const API_URL = 'https://hbfckolzpkdkzwjyvrah.supabase.co/functions/v1/ask-reforma';
+import type { Message } from '../types';
+import { askReforma } from '../services/reforma.service';
 
 const WELCOME: Message = {
   id: 'welcome',
@@ -30,17 +29,7 @@ export function useChat() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: trimmed }),
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      const data: ApiResponse = await res.json();
+      const data = await askReforma(trimmed);
 
       const aiMsg: Message = {
         id: `ai-${Date.now()}`,

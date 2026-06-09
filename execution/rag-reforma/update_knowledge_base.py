@@ -159,8 +159,19 @@ def content_hash(content: str) -> str:
 # Embedding
 # ---------------------------------------------------------------------------
 
+CIRCUIT_BREAKER_MAX = 3
+
+
 def get_embedding(client: openai.OpenAI, text: str) -> list[float]:
-    return client.embeddings.create(model=EMBEDDING_MODEL, input=text).data[0].embedding
+    for attempt in range(1, CIRCUIT_BREAKER_MAX + 1):
+        try:
+            return client.embeddings.create(model=EMBEDDING_MODEL, input=text).data[0].embedding
+        except Exception as e:
+            if attempt == CIRCUIT_BREAKER_MAX:
+                raise RuntimeError(
+                    f"[CIRCUIT BREAKER] {CIRCUIT_BREAKER_MAX} tentativas esgotadas: {e}"
+                ) from e
+            print(f"  [RETRY {attempt}/{CIRCUIT_BREAKER_MAX}] Embedding falhou: {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -217,6 +228,7 @@ def process_document(
     delete_existing(supabase_client, slug)
 
     inserted = 0
+    consecutive_errors = 0
     for i, chunk in enumerate(chunks, 1):
         metadata = {
             "slug":         slug,
@@ -230,9 +242,19 @@ def process_document(
             embedding = get_embedding(openai_client, chunk)
             insert_chunk(supabase_client, chunk, embedding, metadata)
             inserted += 1
+            consecutive_errors = 0
             print(f"  [OK] Chunk {i}/{total}", end="\r")
+        except RuntimeError as e:
+            # Circuit breaker atingido dentro de get_embedding
+            print(f"\n  {e}")
+            print(f"  [CIRCUIT BREAKER] Abortando '{slug}'. Intervenção humana necessária.")
+            return {"slug": slug, "status": "error", "reason": "circuit_breaker"}
         except Exception as e:
+            consecutive_errors += 1
             print(f"\n  [ERROR] Chunk {i}: {e}")
+            if consecutive_errors >= CIRCUIT_BREAKER_MAX:
+                print(f"  [CIRCUIT BREAKER] {CIRCUIT_BREAKER_MAX} erros consecutivos em '{slug}'. Abortando.")
+                return {"slug": slug, "status": "error", "reason": "circuit_breaker"}
 
     print(f"  ✓ {inserted}/{total} chunks inseridos")
     return {"slug": slug, "status": "ok", "inserted": inserted}

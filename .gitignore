@@ -35,3 +35,9 @@ frontend/.vite/
 # OS
 .DS_Store
 Thumbs.db
+
+# Imagens avulsas (não pertencem ao repositório de código)
+WhatsApp\ Image*.jpeg
+WhatsApp\ Image*.jpg
+*.jpeg
+*.jpg
