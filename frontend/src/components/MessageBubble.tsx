@@ -1,3 +1,4 @@
+import ReactMarkdown from 'react-markdown';
 import type { Message } from '../types';
 import { SourceCitations } from './SourceCitations';
 
@@ -47,6 +48,7 @@ export function MessageBubble({ message }: Props) {
     >
       <div style={{ maxWidth: '85%' }}>
         <div
+          className="ai-message"
           style={{
             background: 'var(--color-ai-surface)',
             border: '1px solid var(--color-neutral-200)',
@@ -56,16 +58,14 @@ export function MessageBubble({ message }: Props) {
             lineHeight: 'var(--leading-relaxed)',
             color: 'var(--color-brand-charcoal)',
             wordBreak: 'break-word',
-            whiteSpace: 'pre-wrap',
           }}
         >
-          {message.content}
+          <ReactMarkdown>{message.content}</ReactMarkdown>
         </div>
 
         {message.sources && message.sources.length > 0 && (
           <SourceCitations sources={message.sources} />
         )}
-
       </div>
     </div>
   );

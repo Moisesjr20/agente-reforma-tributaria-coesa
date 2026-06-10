@@ -46,3 +46,88 @@ body {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Markdown dentro das bolhas da IA ─────────────────────── */
+.ai-message p          { margin-bottom: 0.75em; }
+.ai-message p:last-child { margin-bottom: 0; }
+
+.ai-message h1,
+.ai-message h2,
+.ai-message h3 {
+  font-family: var(--font-display);
+  color: var(--color-brand-charcoal);
+  margin: 1em 0 0.4em;
+  line-height: 1.3;
+}
+.ai-message h1 { font-size: 1.2em; }
+.ai-message h2 { font-size: 1.1em; }
+.ai-message h3 { font-size: 1em; font-weight: 700; }
+
+.ai-message ul,
+.ai-message ol {
+  padding-left: 1.4em;
+  margin-bottom: 0.75em;
+}
+.ai-message li        { margin-bottom: 0.3em; }
+.ai-message li:last-child { margin-bottom: 0; }
+
+.ai-message strong    { font-weight: 700; color: var(--color-brand-charcoal); }
+.ai-message em        { font-style: italic; }
+
+.ai-message code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--color-neutral-100);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+}
+
+.ai-message pre {
+  background: var(--color-neutral-100);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  overflow-x: auto;
+  margin-bottom: 0.75em;
+}
+.ai-message pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+
+.ai-message blockquote {
+  border-left: 3px solid var(--color-brand-gold);
+  padding-left: var(--space-3);
+  margin: 0.75em 0;
+  color: var(--color-neutral-600);
+  font-style: italic;
+}
+
+.ai-message hr {
+  border: none;
+  border-top: 1px solid var(--color-neutral-200);
+  margin: 1em 0;
+}
+
+.ai-message table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  margin-bottom: 0.75em;
+}
+.ai-message th,
+.ai-message td {
+  border: 1px solid var(--color-neutral-200);
+  padding: 0.4em 0.6em;
+  text-align: left;
+}
+.ai-message th {
+  background: var(--color-neutral-100);
+  font-weight: 700;
+}
+.ai-message tr:nth-child(even) td {
+  background: var(--color-neutral-50);
+}
