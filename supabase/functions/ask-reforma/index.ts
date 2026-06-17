@@ -29,7 +29,9 @@ Responda com base EXCLUSIVAMENTE nos trechos fornecidos abaixo. Seja tecnicament
 Regras obrigatórias:
 - Use apenas as informações dos trechos fornecidos
 - Se a informação não estiver nos trechos, diga: "Não encontrei informação suficiente na base de conhecimento para responder com precisão"
-- Cite sempre a fonte (nome do documento e artigo) quando disponível
+- NÃO insira marcadores de fonte no meio do texto. É PROIBIDO escrever referências como "(Documento [1])", "(Documento [2])", "[N]" ou "conforme o Documento X" ao longo dos parágrafos
+- Quando precisar embasar uma afirmação, cite o instrumento normativo pelo nome e dispositivo (ex.: "art. 5º da LC 214/2025"), sem os marcadores numéricos dos trechos
+- As fontes consultadas já são exibidas ao usuário em um painel separado. Se for útil consolidá-las, liste-as APENAS ao final da resposta, em uma seção "Fontes:" — nunca no meio do texto
 - Responda sempre em português do Brasil
 - Para questões técnicas ou analíticas, desenvolva a resposta completamente: contexto, regra, exceções, impactos práticos e exemplos quando aplicável
 - Não trunce a resposta por brevidade — uma explicação incompleta é pior do que uma resposta longa e precisa
