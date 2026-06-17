@@ -81,6 +81,11 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 const REFORM_CONTEXT = "reforma tributaria brasileira IBS CBS LC 214 imposto bens servicos";
 
+// Termos de domínio. Se a pergunta já é longa e específica (contém algum
+// destes), NÃO diluímos o embedding com o contexto genérico acima.
+const DOMAIN_HINT_RE =
+  /\b(ibs|cbs|reforma|tribut|lc\s*214|imposto|al[ií]quot|nfs|nota fiscal|split|cesta|seletivo|cclasstrib|cclass|diferimento|monof[aá]sic|importa)\b/i;
+
 const META_PATTERNS = [
   /^me\s+\w+\s+o\s+que\s+vc\s+.+?\s+sobre\s+/i,
   /^me\s+(fala|conta|diga|diz|explica)\s+(sobre\s+)?/i,
@@ -90,19 +95,26 @@ const META_PATTERNS = [
   /^fala\s+sobre\s+/i,
 ];
 
-export function normalizeQuery(q: string): string {
-  let core = q;
-
+// Remove meta-frases coloquiais do início e devolve o núcleo cru da pergunta.
+// Usado diretamente como termo da busca full-text (sem augmentação genérica,
+// que poluiria o ts_query lexical).
+export function stripMeta(q: string): string {
   for (const p of META_PATTERNS) {
     const m = q.match(p);
     if (m && q.slice(m[0].length).trim().length >= 8) {
-      core = q.slice(m[0].length).trim();
-      break;
+      return q.slice(m[0].length).trim();
     }
   }
+  return q;
+}
 
-  // Sempre augmentar com contexto da reforma para melhorar relevância semântica
-  return core + " " + REFORM_CONTEXT;
+// Texto usado para o EMBEDDING. Augmenta com contexto da reforma apenas em
+// perguntas curtas ou vagas — perguntas longas e específicas mantêm o sinal
+// semântico intacto (evita o "puxão" para o tema geral que reduz o recall).
+export function normalizeQuery(q: string): string {
+  const core = stripMeta(q);
+  const needsContext = core.length < 60 || !DOMAIN_HINT_RE.test(core);
+  return needsContext ? core + " " + REFORM_CONTEXT : core;
 }
 
 // ---------------------------------------------------------------------------
@@ -213,6 +225,7 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
   const SIM_THRESHOLD = parseFloat(
     Deno.env.get("ROUTER_COMPLEXITY_SIMILARITY_THRESHOLD") ?? "0.82",
   );
+  const MATCH_COUNT = parseInt(Deno.env.get("RAG_MATCH_COUNT") ?? "12");
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -221,22 +234,32 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
 
   try {
     // 1. Normalizar e embedar a pergunta
-    const queryForEmbedding = normalizeQuery(question);
+    const queryForEmbedding = normalizeQuery(question);     // embedding (augmentação condicional)
+    const queryForFullText = stripMeta(question);           // termo cru p/ busca lexical
     const embedding = await embedQuery(queryForEmbedding, OPENROUTER_KEY);
 
-    // 2. Busca vetorial
-    const { data: rawChunks, error: rpcError } = await supabase.rpc(
-      "match_documents",
-      {
+    // 2. Busca híbrida (vetorial + full-text via RRF). Fallback automático
+    //    para a busca vetorial pura enquanto a migração 004 não foi aplicada.
+    let chunks: Chunk[] = [];
+    let retrieval = "hybrid";
+    const hybrid = await supabase.rpc("match_documents_hybrid", {
+      query_text: queryForFullText,
+      query_embedding: embedding,
+      match_count: MATCH_COUNT,
+    });
+    if (hybrid.error) {
+      retrieval = "vector";
+      const fb = await supabase.rpc("match_documents", {
         query_embedding: embedding,
         match_threshold: 0.30,
-        match_count: 6,
-      },
-    );
-
-    if (rpcError) throw new Error(`RPC match_documents: ${rpcError.message}`);
-
-    const chunks: Chunk[] = rawChunks ?? [];
+        match_count: MATCH_COUNT,
+      });
+      if (fb.error) throw new Error(`RPC match_documents: ${fb.error.message}`);
+      chunks = fb.data ?? [];
+    } else {
+      chunks = hybrid.data ?? [];
+    }
+    console.log(`retrieval=${retrieval} chunks=${chunks.length}`);
 
     // Nenhum resultado relevante
     if (chunks.length === 0) {

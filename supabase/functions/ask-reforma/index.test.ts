@@ -18,6 +18,7 @@ const _stubCreateClient = () => {};
 // Importar diretamente as exportações do módulo
 import {
   normalizeQuery,
+  stripMeta,
   classifyComplexity,
   isRateLimited,
 } from "./index.ts";
@@ -63,10 +64,25 @@ Deno.test("normalizeQuery — NÃO remove meta-frase se o restante for < 8 chars
   assertMatch(result, /me fala sobre IBS/);
 });
 
-Deno.test("normalizeQuery — sempre adiciona contexto de reforma ao final", () => {
+Deno.test("normalizeQuery — adiciona contexto em pergunta curta/vaga", () => {
   const q = "O que é o split payment?";
   const result = normalizeQuery(q);
   assertMatch(result, /IBS CBS LC 214/);
+});
+
+Deno.test("normalizeQuery — NÃO augmenta pergunta longa e específica de domínio", () => {
+  const q = "Qual a data da obrigatoriedade da nota fiscal de serviço para locação?";
+  const result = normalizeQuery(q);
+  // longa (>= 60) e com termo de domínio ("nota fiscal") → mantém sinal intacto
+  assertEquals(result, q);
+  assertEquals(/reforma tributaria brasileira/.test(result), false);
+});
+
+Deno.test("stripMeta — remove meta-frase e devolve núcleo cru, sem contexto", () => {
+  const q = "me fala sobre o split payment na reforma";
+  const core = stripMeta(q);
+  assertEquals(core, "o split payment na reforma");
+  assertEquals(/IBS CBS LC 214/.test(core), false);
 });
 
 // ---------------------------------------------------------------------------
