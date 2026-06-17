@@ -28,10 +28,11 @@ Responda com base EXCLUSIVAMENTE nos trechos fornecidos abaixo. Seja tecnicament
 
 Regras obrigatórias:
 - Use apenas as informações dos trechos fornecidos
-- Se a informação não estiver nos trechos, diga: "Não encontrei informação suficiente na base de conhecimento para responder com precisão"
+- Responda com TODAS as informações relevantes presentes nos trechos. Se os trechos tratam do tema mas não cobrem exatamente o recorte da pergunta, NÃO abra a resposta com uma recusa: apresente primeiro o que há de concreto e, ao final, sinalize de forma pontual e breve apenas o aspecto específico que não consta na base
+- Reserve a frase "Não encontrei informação suficiente na base de conhecimento para responder com precisão" EXCLUSIVAMENTE para quando NENHUM trecho tiver relação com a pergunta
 - NÃO insira marcadores de fonte no meio do texto. É PROIBIDO escrever referências como "(Documento [1])", "[N]", "conforme o Documento X", "trecho N", ou o título/identificador interno dos documentos (ex.: "(Econet — Reforma Tributária (Parte 11), trecho 28)") ao longo dos parágrafos
 - Quando precisar embasar uma afirmação, cite APENAS o instrumento normativo pelo nome e dispositivo (ex.: "art. 5º da LC 214/2025", "Resolução CG-IBS nº 6/2026"), nunca os rótulos internos dos trechos do contexto
-- As fontes consultadas já são exibidas ao usuário em um painel separado. Se for útil consolidá-las, liste-as APENAS ao final da resposta, em uma seção "Fontes:" — nunca no meio do texto
+- As fontes consultadas já são exibidas ao usuário em um painel separado pela aplicação. Portanto, NÃO escreva uma seção "Fontes:", "Referências:" ou lista de documentos ao final — não repita os documentos consultados. Encerre a resposta no conteúdo
 - Responda sempre em português do Brasil
 - Para questões técnicas ou analíticas, desenvolva a resposta completamente: contexto, regra, exceções, impactos práticos e exemplos quando aplicável
 - Não trunce a resposta por brevidade — uma explicação incompleta é pior do que uma resposta longa e precisa
@@ -115,6 +116,28 @@ export function normalizeQuery(q: string): string {
   const core = stripMeta(q);
   const needsContext = core.length < 60 || !DOMAIN_HINT_RE.test(core);
   return needsContext ? core + " " + REFORM_CONTEXT : core;
+}
+
+// Sanitização determinística da resposta: remove marcadores internos de
+// trecho/documento que o LLM eventualmente vaza no corpo, e limpa os
+// separadores pendentes deixados dentro de parênteses de citação.
+export function sanitizeAnswer(text: string): string {
+  let t = text;
+  // "trecho 54", "trechos 54, 55"
+  t = t.replace(/\btrechos?\s+\d+(\s*,\s*\d+)*/gi, "");
+  // "(Documento [1])", "Documento 1", "[1]"
+  t = t.replace(/\(?\s*documento\s*\[?\s*\d+\s*\]?\s*\)?/gi, "");
+  t = t.replace(/\[\s*\d+\s*\]/g, "");
+  // limpar separadores pendentes antes de ")" (ex.: "...6/2026; e )" -> "...6/2026)")
+  t = t.replace(/[;,]\s*(e\s+)?(?=\))/gi, "");
+  t = t.replace(/\(\s*[;,]\s*/g, "(");
+  t = t.replace(/\(\s*e\s+/gi, "(");
+  t = t.replace(/\(\s*\)/g, "");
+  // normalizar espaços e pontuação
+  t = t.replace(/[ \t]{2,}/g, " ");
+  t = t.replace(/[ \t]+([.,;:)])/g, "$1");
+  t = t.replace(/\(\s+/g, "(");
+  return t.trim();
 }
 
 // ---------------------------------------------------------------------------
@@ -446,7 +469,8 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
     }
 
     const llmData = await llmResp.json();
-    const answer: string = llmData.choices?.[0]?.message?.content ?? "";
+    const rawAnswer: string = llmData.choices?.[0]?.message?.content ?? "";
+    const answer = sanitizeAnswer(rawAnswer);
     const latency_ms = Date.now() - startMs;
 
     // 6. Log (best-effort — não bloqueia resposta)

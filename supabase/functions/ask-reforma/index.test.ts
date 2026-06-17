@@ -19,6 +19,7 @@ const _stubCreateClient = () => {};
 import {
   normalizeQuery,
   stripMeta,
+  sanitizeAnswer,
   classifyComplexity,
   isRateLimited,
   applyDiversity,
@@ -85,6 +86,30 @@ Deno.test("stripMeta — remove meta-frase e devolve núcleo cru, sem contexto",
   const core = stripMeta(q);
   assertEquals(core, "o split payment na reforma");
   assertEquals(/IBS CBS LC 214/.test(core), false);
+});
+
+// ---------------------------------------------------------------------------
+// sanitizeAnswer
+// ---------------------------------------------------------------------------
+
+Deno.test("sanitizeAnswer — remove '(trecho N)' isolado e limpa pontuação", () => {
+  const r = sanitizeAnswer("A NFS-e é obrigatória desde 2026 (trecho 51).");
+  assertEquals(r, "A NFS-e é obrigatória desde 2026.");
+});
+
+Deno.test("sanitizeAnswer — remove 'trecho N' pendente dentro de citação normativa", () => {
+  const r = sanitizeAnswer("Iniciou em 2026 (Art. 62 da LC 214/2025; e trecho 54).");
+  assertEquals(r, "Iniciou em 2026 (Art. 62 da LC 214/2025).");
+});
+
+Deno.test("sanitizeAnswer — remove marcadores '(Documento [1])' e '[2]'", () => {
+  const r = sanitizeAnswer("Regra geral [2] vale para todos (Documento [1]).");
+  assertEquals(/Documento|\[\d+\]|trecho/.test(r), false);
+});
+
+Deno.test("sanitizeAnswer — preserva texto sem marcadores", () => {
+  const original = "O IBS substitui o ICMS conforme a LC 214/2025.";
+  assertEquals(sanitizeAnswer(original), original);
 });
 
 // ---------------------------------------------------------------------------
