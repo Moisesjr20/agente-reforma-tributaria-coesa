@@ -21,6 +21,8 @@ import {
   stripMeta,
   classifyComplexity,
   isRateLimited,
+  applyDiversity,
+  neighborTargets,
 } from "./index.ts";
 
 // ---------------------------------------------------------------------------
@@ -165,4 +167,44 @@ Deno.test("isRateLimited — IPs diferentes são independentes", () => {
   for (let i = 0; i < 21; i++) isRateLimited(ip1);
   // ip2 não deve ser afetado
   assertEquals(isRateLimited(ip2), false);
+});
+
+// ---------------------------------------------------------------------------
+// applyDiversity / neighborTargets (visão ampliada)
+// ---------------------------------------------------------------------------
+
+const mkChunk = (slug: string, idx: number, total = 100, sim = 0.7) => ({
+  id: `${slug}-${idx}`,
+  content: "x",
+  metadata: { slug, title: slug, source_type: "curso", chunk_index: idx, total_chunks: total },
+  similarity: sim,
+});
+
+Deno.test("applyDiversity — limita chunks por documento preservando ordem", () => {
+  const chunks = [
+    mkChunk("a", 1), mkChunk("a", 2), mkChunk("a", 3),
+    mkChunk("b", 1), mkChunk("a", 4), mkChunk("b", 2),
+  ];
+  const out = applyDiversity(chunks, 2);
+  // no máximo 2 de "a" e 2 de "b"
+  assertEquals(out.filter((c) => c.metadata.slug === "a").length, 2);
+  assertEquals(out.filter((c) => c.metadata.slug === "b").length, 2);
+  // mantém os primeiros de cada doc (ordem de ranking)
+  assertEquals(out[0].id, "a-1");
+});
+
+Deno.test("neighborTargets — gera vizinhos ±1 sem repetir os já presentes", () => {
+  const primary = [mkChunk("a", 5), mkChunk("a", 6)];
+  const t = neighborTargets(primary, 1);
+  assertEquals(t.length, 1);
+  assertEquals(t[0].slug, "a");
+  // vizinhos de {5,6} = {4,5,6,7} menos os presentes {5,6} = {4,7}
+  assertEquals([...t[0].indices].sort((x, y) => x - y), [4, 7]);
+});
+
+Deno.test("neighborTargets — respeita limites [1, total_chunks]", () => {
+  const primary = [mkChunk("a", 1, 1)]; // único chunk do doc
+  const t = neighborTargets(primary, 1);
+  // não há vizinho válido (idx 0 inválido, idx 2 > total)
+  assertEquals(t.length, 0);
 });

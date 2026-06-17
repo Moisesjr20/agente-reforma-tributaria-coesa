@@ -29,8 +29,8 @@ Responda com base EXCLUSIVAMENTE nos trechos fornecidos abaixo. Seja tecnicament
 Regras obrigatórias:
 - Use apenas as informações dos trechos fornecidos
 - Se a informação não estiver nos trechos, diga: "Não encontrei informação suficiente na base de conhecimento para responder com precisão"
-- NÃO insira marcadores de fonte no meio do texto. É PROIBIDO escrever referências como "(Documento [1])", "(Documento [2])", "[N]" ou "conforme o Documento X" ao longo dos parágrafos
-- Quando precisar embasar uma afirmação, cite o instrumento normativo pelo nome e dispositivo (ex.: "art. 5º da LC 214/2025"), sem os marcadores numéricos dos trechos
+- NÃO insira marcadores de fonte no meio do texto. É PROIBIDO escrever referências como "(Documento [1])", "[N]", "conforme o Documento X", "trecho N", ou o título/identificador interno dos documentos (ex.: "(Econet — Reforma Tributária (Parte 11), trecho 28)") ao longo dos parágrafos
+- Quando precisar embasar uma afirmação, cite APENAS o instrumento normativo pelo nome e dispositivo (ex.: "art. 5º da LC 214/2025", "Resolução CG-IBS nº 6/2026"), nunca os rótulos internos dos trechos do contexto
 - As fontes consultadas já são exibidas ao usuário em um painel separado. Se for útil consolidá-las, liste-as APENAS ao final da resposta, em uma seção "Fontes:" — nunca no meio do texto
 - Responda sempre em português do Brasil
 - Para questões técnicas ou analíticas, desenvolva a resposta completamente: contexto, regra, exceções, impactos práticos e exemplos quando aplicável
@@ -148,8 +148,58 @@ async function embedQuery(question: string, openrouterKey: string): Promise<numb
 interface Chunk {
   id: string;
   content: string;
-  metadata: { slug: string; title: string; source_type: string; chunk_index: number };
+  metadata: {
+    slug: string;
+    title: string;
+    source_type: string;
+    chunk_index: number;
+    total_chunks?: number;
+  };
   similarity: number;
+}
+
+// Diversidade por documento: limita quantos chunks de um mesmo documento
+// entram no contexto, preservando a ordem de relevância.
+export function applyDiversity(chunks: Chunk[], maxPerDoc: number): Chunk[] {
+  const perDoc = new Map<string, number>();
+  const out: Chunk[] = [];
+  for (const c of chunks) {
+    const slug = c.metadata.slug;
+    const n = perDoc.get(slug) ?? 0;
+    if (n >= maxPerDoc) continue;
+    perDoc.set(slug, n + 1);
+    out.push(c);
+  }
+  return out;
+}
+
+// Janela de vizinhança: para cada hit, calcula os índices de chunk adjacentes
+// (±radius) do mesmo documento que ainda não estão presentes — o agente passa
+// a "ler o parágrafo inteiro ao redor" do trecho que casou, não o fragmento.
+export function neighborTargets(
+  primary: Chunk[],
+  radius: number,
+): { slug: string; indices: number[] }[] {
+  const bySlug = new Map<string, { have: Set<number>; want: Set<number>; total: number }>();
+  for (const c of primary) {
+    const slug = c.metadata.slug;
+    const idx = c.metadata.chunk_index;
+    const total = c.metadata.total_chunks ?? Number.MAX_SAFE_INTEGER;
+    if (!bySlug.has(slug)) bySlug.set(slug, { have: new Set(), want: new Set(), total });
+    const e = bySlug.get(slug)!;
+    e.have.add(idx);
+    for (let d = -radius; d <= radius; d++) {
+      if (d === 0) continue;
+      const ni = idx + d;
+      if (ni >= 1 && ni <= e.total) e.want.add(ni);
+    }
+  }
+  const res: { slug: string; indices: number[] }[] = [];
+  for (const [slug, e] of bySlug) {
+    const indices = [...e.want].filter((i) => !e.have.has(i));
+    if (indices.length) res.push({ slug, indices });
+  }
+  return res;
 }
 
 export function classifyComplexity(
@@ -225,7 +275,10 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
   const SIM_THRESHOLD = parseFloat(
     Deno.env.get("ROUTER_COMPLEXITY_SIMILARITY_THRESHOLD") ?? "0.82",
   );
-  const MATCH_COUNT = parseInt(Deno.env.get("RAG_MATCH_COUNT") ?? "12");
+  const MATCH_COUNT = parseInt(Deno.env.get("RAG_MATCH_COUNT") ?? "24");
+  const NEIGHBOR_RADIUS = parseInt(Deno.env.get("RAG_NEIGHBOR_RADIUS") ?? "1");
+  const MAX_PER_DOC = parseInt(Deno.env.get("RAG_MAX_PER_DOC") ?? "10");
+  const MAX_CONTEXT_CHUNKS = parseInt(Deno.env.get("RAG_MAX_CONTEXT_CHUNKS") ?? "60");
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -259,8 +312,6 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
     } else {
       chunks = hybrid.data ?? [];
     }
-    console.log(`retrieval=${retrieval} chunks=${chunks.length}`);
-
     // Nenhum resultado relevante
     if (chunks.length === 0) {
       return jsonResponse({
@@ -273,7 +324,7 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
       });
     }
 
-    // 3. Classificar complexidade e selecionar modelo
+    // 3. Classificar complexidade e selecionar modelo (sobre os hits primários)
     const complexity = classifyComplexity(
       question,
       chunks,
@@ -282,20 +333,80 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
     );
     const model = complexity === "simple" ? MODEL_SIMPLE : MODEL_COMPLEX;
 
-    // 4. Montar contexto e calcular métricas
+    // 4. Visão ampliada: diversidade por documento + janela de vizinhança
+    const primary = applyDiversity(chunks, MAX_PER_DOC);
+
+    const haveIds = new Set(primary.map((c) => c.id));
+    const neighbors: Chunk[] = [];
+    for (const t of neighborTargets(primary, NEIGHBOR_RADIUS)) {
+      const { data, error } = await supabase
+        .from("knowledge_documents")
+        .select("id, content, metadata")
+        .eq("metadata->>slug", t.slug)
+        .in("metadata->>chunk_index", t.indices.map(String));
+      if (error || !data) continue;
+      for (const r of data as Chunk[]) {
+        if (!haveIds.has(r.id)) {
+          haveIds.add(r.id);
+          neighbors.push({ ...r, similarity: 0 });
+        }
+      }
+    }
+
+    // melhor similaridade por documento → ordena documentos por relevância
+    const docScore = new Map<string, number>();
+    for (const c of primary) {
+      docScore.set(
+        c.metadata.slug,
+        Math.max(docScore.get(c.metadata.slug) ?? 0, c.similarity),
+      );
+    }
+
+    // contexto agrupado por documento (mais relevante primeiro), trechos em
+    // ordem natural dentro de cada documento — limitado a MAX_CONTEXT_CHUNKS
+    const contextChunks = [...primary, ...neighbors]
+      .sort((a, b) => {
+        const sa = docScore.get(a.metadata.slug) ?? 0;
+        const sb = docScore.get(b.metadata.slug) ?? 0;
+        if (sb !== sa) return sb - sa;
+        if (a.metadata.slug !== b.metadata.slug) {
+          return a.metadata.slug < b.metadata.slug ? -1 : 1;
+        }
+        return a.metadata.chunk_index - b.metadata.chunk_index;
+      })
+      .slice(0, MAX_CONTEXT_CHUNKS);
+
+    console.log(
+      `retrieval=${retrieval} primary=${primary.length} neighbors=${neighbors.length} context=${contextChunks.length}`,
+    );
+
+    // 5. Métricas e fontes (deduplicadas por documento, melhor similaridade)
     const avgSimilarity =
-      chunks.reduce((s, c) => s + c.similarity, 0) / chunks.length;
+      primary.reduce((s, c) => s + c.similarity, 0) / primary.length;
 
-    const sources = chunks.map((c) => ({
-      slug: c.metadata.slug,
-      title: c.metadata.title,
-      similarity: Math.round(c.similarity * 1000) / 1000,
-    }));
+    const sourceMap = new Map<
+      string,
+      { slug: string; title: string; similarity: number }
+    >();
+    for (const c of primary) {
+      const sim = Math.round(c.similarity * 1000) / 1000;
+      const ex = sourceMap.get(c.metadata.slug);
+      if (!ex || sim > ex.similarity) {
+        sourceMap.set(c.metadata.slug, {
+          slug: c.metadata.slug,
+          title: c.metadata.title,
+          similarity: sim,
+        });
+      }
+    }
+    const sources = [...sourceMap.values()].sort(
+      (a, b) => b.similarity - a.similarity,
+    );
 
-    const context = chunks
+    const context = contextChunks
       .map(
         (c, i) =>
-          `[${i + 1}] Documento: ${c.metadata.title} (${c.metadata.slug})\n${c.content}`,
+          `[${i + 1}] ${c.metadata.title} (${c.metadata.slug}) — trecho ${c.metadata.chunk_index}\n${c.content}`,
       )
       .join("\n\n---\n\n");
 
@@ -345,7 +456,7 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
         question,
         answer,
         model_used: model,
-        chunks_used: chunks.map((c) => c.id),
+        chunks_used: contextChunks.map((c) => c.id),
         latency_ms,
       })
       .then(({ error }) => {
