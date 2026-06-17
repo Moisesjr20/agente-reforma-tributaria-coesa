@@ -7,6 +7,13 @@ interface Props {
 export function SourceCitations({ sources }: Props) {
   if (sources.length === 0) return null;
 
+  const unique = sources.reduce<Source[]>((acc, s) => {
+    const existing = acc.find((x) => x.slug === s.slug);
+    if (!existing) return [...acc, s];
+    if (s.similarity > existing.similarity) existing.similarity = s.similarity;
+    return acc;
+  }, []);
+
   return (
     <div
       style={{
@@ -26,7 +33,7 @@ export function SourceCitations({ sources }: Props) {
       >
         Fontes consultadas:
       </span>
-      {sources.map((s) => (
+      {unique.map((s) => (
         <span
           key={s.slug}
           title={s.title}

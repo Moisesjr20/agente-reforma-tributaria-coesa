@@ -25,7 +25,7 @@ export function ChatInput({ onSend, isLoading }: Props) {
 
   const handleSubmit = (e?: FormEvent) => {
     e?.preventDefault();
-    if (!text.trim() || isLoading) return;
+    if (!text.trim() || text.trim().length < 10 || isLoading) return;
     onSend(text);
     setText('');
     if (textareaRef.current) {
