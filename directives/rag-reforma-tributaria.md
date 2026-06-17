@@ -53,6 +53,13 @@ python -m pytest execution/rag-reforma/test_update_knowledge_base.py -v
 
 A Edge Function usa `Deno.serve` no nível do módulo. Para que possa ser importada nos testes sem abrir uma porta TCP, o bloco do servidor deve ser guardado com `if (import.meta.main)`.
 
+O `.env` define `SOURCES_JSON_PATH` (e `KNOWLEDGE_BASE_PATH`/`TMP_PATH`) com caminhos absolutos da máquina de origem (`D:\Clientes de BI\...`). Como `load_dotenv()` **não** sobrescreve variáveis já presentes no ambiente, ao rodar a ingestão em outra máquina exporte o caminho local antes:
+```bash
+export SOURCES_JSON_PATH=".../execution/rag-reforma/sources.json"
+python execution/rag-reforma/update_knowledge_base.py --slug <slug>
+```
+Para extrair texto de PDFs avulsos para `.txt` reutilize `execution/rag-reforma/extract_pdfs.py "<dir>"` (ignora cópias duplicadas cujo nome termina em `(1)`).
+
 ---
 
 ## Visão Geral
@@ -65,7 +72,7 @@ Agente de IA público que responde perguntas sobre a **Reforma Tributária Brasi
 
 ## Escopo Documental
 
-Arquivos locais em `D:\Clientes de BI\projeto coesa\base de conhecimento\`:
+Arquivos locais em `base de conhecimento/` (na raiz do projeto):
 
 | # | Arquivo | Formato | Conteúdo |
 |---|---|---|---|

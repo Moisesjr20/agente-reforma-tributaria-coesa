@@ -229,5 +229,68 @@
     "source_type": "faq",
     "format": "txt",
     "path": "D:\\Clientes de BI\\projeto coesa\\base de conhecimento\\novos_conheicmmento\\realtorio de duvidas e respostas.txt"
+  },
+  {
+    "slug": "cbs-comex-cfc-rfb",
+    "title": "CBS no Comércio Exterior — Curso CFC-RFB (26/05/2026)",
+    "source_type": "curso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\CBS no Comércio Exterior - Curso CFC-RFB 26-05-2026.txt"
+  },
+  {
+    "slug": "cbs-comex-aula-pratica-sergio",
+    "title": "CBS no Comércio Exterior — Aula Prática (Sergio) — Curso CFC-RFB",
+    "source_type": "curso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\CBS no Comércio Exterior - Curso CFC-RFB 26-05-2026_Aula prática_Sergio_completa.txt"
+  },
+  {
+    "slug": "curso-cfc-rfb-mod1-mombelli",
+    "title": "Curso CFC-RFB — Módulo 1 (Mombelli) — maio/2026",
+    "source_type": "curso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\Curso CFC-RFB - Modulo 1 - Mombelli_maio-2026 final.txt"
+  },
+  {
+    "slug": "curso-cfc-rfb-mod1-roni",
+    "title": "Curso CFC-RFB — Módulo 1 (Roni) — maio/2026",
+    "source_type": "curso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\Curso CFC-RFB - Módulo 1_Roni_maio-2026.txt"
+  },
+  {
+    "slug": "cclasstrib-manual-fundamentos",
+    "title": "Manual de Fundamentos — cClassTrib",
+    "source_type": "curso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\manual de fundamentos.txt"
+  },
+  {
+    "slug": "cclasstrib-pesquisa",
+    "title": "Relatório Técnico-Sistêmico de Engenharia Fiscal — cClassTrib",
+    "source_type": "curso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\pesquisa cclasstrib.txt"
+  },
+  {
+    "slug": "cclasstrib-plano-aprendizagem",
+    "title": "Roteiro de Aprendizagem — Classificação de Operações IBS/CBS (cClassTrib)",
+    "source_type": "curso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\plano de aprendizagem.txt"
+  },
+  {
+    "slug": "cclasstrib-plano-estrategico",
+    "title": "Plano Estratégico de Transição — Migração para o Modelo cClassTrib",
+    "source_type": "curso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\plano estrategico.txt"
+  },
+  {
+    "slug": "cclasstrib-parecer-tecnico",
+    "title": "Manual de Parametrização Lógica — cClassTrib e a Inteligência Fiscal da LC 214/2025",
+    "source_type": "curso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\parecer tecnico.txt"
   }
 ]
