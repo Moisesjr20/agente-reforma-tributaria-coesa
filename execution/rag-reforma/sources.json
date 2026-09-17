@@ -49,6 +49,13 @@
     "path": "D:\\Clientes de BI\\projeto coesa\\.tmp\\parsed\\anexos-reforma-tributaria-lcp-214.txt"
   },
   {
+    "slug": "lcp-227",
+    "title": "Lei Complementar 227/2026 — alterações à LC 214/2025",
+    "source_type": "lei",
+    "format": "pdf",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\REFORMA TRIBUTARIA IA\\LEI COMPLEMENTAR N° 227, DE 13 DE JANEIRO DE 2026.pdf"
+  },
+  {
     "slug": "ebook-forum-reforma",
     "title": "eBook Fórum Reforma Tributária",
     "source_type": "manual",
@@ -292,5 +299,96 @@
     "source_type": "curso",
     "format": "txt",
     "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\parecer tecnico.txt"
+  },
+  {
+    "slug": "cclass-2026-06-01",
+    "title": "Tabela cClassTrib — Classificação de Operações IBS/CBS (jun/2026)",
+    "source_type": "tabela",
+    "format": "csv",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\cclass-2026-06-01.csv"
+  },
+  {
+    "slug": "cst-2026-06-01",
+    "title": "Tabela CST-IBS/CBS — Código de Situação Tributária (jun/2026)",
+    "source_type": "tabela",
+    "format": "csv",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\cclasstrib\\cst-2026-06-01.csv"
+  },
+  {
+    "slug": "resolucao-cgibs-16-2026",
+    "title": "Resolução CG-IBS Nº 16, de 29/07/2026 — Competência provisória para ato conjunto de obrigatoriedade de DF-e",
+    "source_type": "resolucao",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\29175824-doc-20260729-wa0035-260729-175811.txt"
+  },
+  {
+    "slug": "nt-2025-002-rtc-nfe-nfce",
+    "title": "Nota Técnica 2025.002-RTC v1.51 — Adequações NF-e/NFC-e (Reforma Tributária, LC 214/2025)",
+    "source_type": "nota-tecnica",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\NT_2025.002_v1.51_RTC_NF-e_IBS_CBS_IS.txt"
+  },
+  {
+    "slug": "resolucao-cgibs-14-2026",
+    "title": "Resolução CG-IBS Nº 14, de 29/07/2026 — Percentual de arrecadação do IBS p/ financiamento do CGIBS (2027)",
+    "source_type": "resolucao",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\RESOLUÇÃO CGIBS Nº 14, DE 29 DE JULHO DE 2026 - RESOLUÇÃO CGIBS Nº 14, DE 29 DE JULHO DE 2026 - DOU - Imprensa Nacional.txt"
+  },
+  {
+    "slug": "resolucao-cgibs-17-2026",
+    "title": "Resolução CG-IBS Nº 17, de 30/07/2026 — Competências da Diretoria Executiva para atos técnicos operacionais",
+    "source_type": "resolucao",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\30184100-doc-20260730-wa0034-260730-183903.txt"
+  },
+  {
+    "slug": "prazos-obrigatoriedade-dfe-ato-conjunto-04",
+    "title": "Prazos de Obrigatoriedade de Emissão de DF-e — Ato Conjunto RFB/CG-IBS Nº 4/2026 (tabela)",
+    "source_type": "cronograma",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\WhatsApp Image 2026-08-06 at 12.23.49.txt"
+  },
+  {
+    "slug": "dou-ato-conjunto-04-2026",
+    "title": "DOU Seção 1 (31/07/2026) — Ato Conjunto RFB/CG-IBS Nº 4, de 30/07/2026 (texto integral)",
+    "source_type": "ato-conjunto",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\WhatsApp Image 2026-08-06 at 12.23.48.txt"
+  },
+  {
+    "slug": "cronograma-ato-conjunto-04-2026",
+    "title": "Cronograma por documento — Ato Conjunto RFB/CG-IBS Nº 4/2026 (tabela)",
+    "source_type": "cronograma",
+    "format": "csv",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\cronograma-ato-conjunto-rfb-cgibs-04-2026.csv"
+  },
+  {
+    "slug": "cronograma-ato-conjunto-04-2026-notas",
+    "title": "Ato Conjunto RFB/CG-IBS Nº 4/2026 — Calendário consolidado, regras especiais e pontos de atenção",
+    "source_type": "cronograma",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\cronograma-ato-conjunto-rfb-cgibs-04-2026-notas.txt"
+  },
+  {
+    "slug": "nfse-cronograma-implantacao-2026",
+    "title": "Portal NFS-e — Evoluções em Produção Restrita e cronograma de implantação (IBS/CBS, jul/2026)",
+    "source_type": "noticia",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\link-nfse-cronograma-implantacao.txt"
+  },
+  {
+    "slug": "rfb-cgibs-flexibilizacao-informacoes-df-e",
+    "title": "Receita Federal e CGIBS flexibilizarão obrigatoriedade de informações (CBS/IBS) em DF-e",
+    "source_type": "noticia",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\link-rfb-cgibs-flexibilizacao-informacoes-df-e.txt"
+  },
+  {
+    "slug": "svrs-aviso-2983-cnpj-alfanumerico",
+    "title": "SVRS — Avisos DF-e / CNPJ Alfanumérico na transição da Reforma Tributária (jul/2026)",
+    "source_type": "aviso",
+    "format": "txt",
+    "path": "C:\\Users\\moise\\OneDrive\\arquvios anteriores a 121225\\Documents\\Projetos HIC\\projeto coesa\\base de conhecimento\\atualizaçãoes\\link-svrs-aviso-2983.txt"
   }
 ]
