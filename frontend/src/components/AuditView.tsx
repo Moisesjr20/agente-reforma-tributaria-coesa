@@ -1,15 +1,27 @@
 import { useState } from 'react';
+import type * as XLSX from 'xlsx';
 import { FileDrop } from './FileDrop';
 import { AuditSummary } from './AuditSummary';
 import { FindingsTable } from './FindingsTable';
+import { CorrectionAssistant } from './CorrectionAssistant';
 import { parseMatrixWorkbook, MatrixParseError } from '../audit/parseXlsx';
 import { loadOfficialContext } from '../audit/officialTables';
 import { runAudit, type AuditResult } from '../audit/runAudit';
+import type { AuditContext, MatrixItem } from '../audit/rules';
+
+interface DoneData {
+  result: AuditResult;
+  source: string;
+  items: MatrixItem[];
+  ctx: AuditContext;
+  wb: XLSX.WorkBook;
+  columns: string[];
+}
 
 type State =
   | { kind: 'idle' }
   | { kind: 'parsing' }
-  | { kind: 'done'; result: AuditResult; source: string }
+  | ({ kind: 'done' } & DoneData)
   | { kind: 'error'; message: string };
 
 export function AuditView() {
@@ -21,7 +33,7 @@ export function AuditView() {
       const [buf, ctx] = await Promise.all([file.arrayBuffer(), loadOfficialContext()]);
       const parsed = parseMatrixWorkbook(buf);
       const result = runAudit(parsed.items, ctx);
-      setState({ kind: 'done', result, source: file.name });
+      setState({ kind: 'done', result, source: file.name, items: parsed.items, ctx, wb: parsed.wb, columns: parsed.columns });
     } catch (err) {
       const message = err instanceof MatrixParseError
         ? err.message
@@ -67,6 +79,7 @@ export function AuditView() {
           </div>
           <AuditSummary result={state.result} source={state.source} />
           <FindingsTable result={state.result} />
+          <CorrectionAssistant items={state.items} ctx={state.ctx} wb={state.wb} columns={state.columns} source={state.source} />
         </div>
       )}
     </div>

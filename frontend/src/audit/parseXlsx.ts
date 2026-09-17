@@ -12,6 +12,7 @@ export interface ParseResult {
   sheet: string;
   columns: string[];
   items: MatrixItem[];
+  wb: XLSX.WorkBook; // retido para reescrever/exportar a planilha corrigida
 }
 
 export function parseMatrixWorkbook(buf: ArrayBuffer): ParseResult {
@@ -57,5 +58,5 @@ export function parseMatrixWorkbook(buf: ArrayBuffer): ParseResult {
   }
 
   if (!items.length) throw new MatrixParseError('Nenhum item encontrado na aba "MATRIZ REFORMA".');
-  return { sheet: SHEET_NAME, columns: headers, items };
+  return { sheet: SHEET_NAME, columns: headers, items, wb };
 }

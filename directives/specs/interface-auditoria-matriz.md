@@ -72,10 +72,25 @@ R1 código existe · R2 par CST×cClassTrib · R2b válido p/ NFC-e/NF-e · R3 N
 categoria · R4 álcool como insumo · R5 cadastro inválido · R6 Imposto Seletivo ·
 R7 natureza×cClassTrib. Detecção de álcool por **categoria** + NCM 2203–2208.
 
+## Assistente de correção (v1.1)
+
+Após os resultados aparece o **CorrectionAssistant**: propõe correções e permite
+**revisar/aprovar** antes de **exportar o `.xlsx` corrigido** (SheetJS reescreve as
+células da aba `MATRIZ REFORMA`, preservando as demais abas). Modelo **híbrido**:
+
+- **Determinístico (no navegador):** valores deriváveis das tabelas/regras — CST
+  para o par oficial (R2), código por natureza (R7), grupo → REVENDA para álcool
+  como insumo (R4), e NCM sugerido pela análise (R3).
+- **Requer decisão:** NCM ausente/errado sem sugestão e código inexistente (R1) —
+  o usuário preenche, ou usa **"Consultar IA"** (opt-in), que envia **apenas aquele
+  item** ao agente `ask-reforma`. Há também um chat livre com a IA.
+
+Arquivos: `audit/corrections.ts`, `audit/exportXlsx.ts`, `components/CorrectionAssistant.tsx`.
+
 ## Fora de escopo (v1)
 
 - Persistência/histórico de auditorias (é stateless por sessão).
-- Correção automática (a tela **aponta**; o saneamento é feito no ERP/emissor).
+- Correção em lote sem revisão / aplicação silenciosa de casos ambíguos.
 - Camada "matriz atual" (ICMS/PIS-COFINS) — auditoria cobre só a camada reforma.
 
 ## Critérios de aceite
